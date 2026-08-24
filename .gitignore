@@ -1,0 +1,27 @@
+# Binaries
+codelens
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Cache and temporary files
+.codelens-cache/
+*.log
+
+# UI
+ui/dist/
+ui/node_modules/
+
+# Config files with secrets
+codelens.config.json
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*~
