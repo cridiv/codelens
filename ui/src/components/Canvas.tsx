@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import ReactFlow, {
   Background,
   MiniMap,
@@ -16,7 +16,7 @@ import 'reactflow/dist/style.css';
 import { useStore } from '../store/useStore';
 import { SchemaNode } from './nodes/SchemaNode';
 import { CustomEdge } from './edges/CustomEdge';
-import { computeGraphLayout } from '../utils/layout';
+import { computeGraphLayout, LayoutGraph, LayoutNode } from '../utils/layout';
 import {
   Sparkles,
   Maximize2,
@@ -28,6 +28,8 @@ import {
   EyeOff,
   LayoutGrid,
   Search,
+  FileCode2,
+  Boxes,
 } from 'lucide-react';
 
 const nodeTypes = {
@@ -56,48 +58,135 @@ function CanvasContent() {
     triggerAutoLayout,
     breadcrumbs,
     popBreadcrumb,
+    scopeMode,
+    setScopeMode,
+    activeFilePath,
+    activePackage,
+    setActiveFile,
+    setActivePackage,
   } = useStore();
 
   const reactFlowInstance = useReactFlow();
 
-  // Filter graph nodes according to searchQuery and activeKindFilters
-  const filteredGraph = useMemo(() => {
+  // Compute visible files for quick switcher tabs
+  const allFiles = useMemo(() => {
+    const fileMap: Record<string, { path: string; name: string; package: string; count: number }> = {};
+    graph.nodes.forEach((n) => {
+      const p = n.path || 'unknown.go';
+      if (!fileMap[p]) {
+        fileMap[p] = {
+          path: p,
+          name: p.split('/').pop() || p,
+          package: n.metadata?.package || 'root',
+          count: 0,
+        };
+      }
+      fileMap[p].count += 1;
+    });
+    return Object.values(fileMap);
+  }, [graph.nodes]);
+
+  // Compute scoped graph based on scopeMode (file vs package vs all)
+  const scopedGraph: LayoutGraph = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    const visibleNodes = graph.nodes.filter((node) => {
-      const matchesKind = activeKindFilters.has(node.kind);
+
+    // Helper: matches search query and kind filters
+    const matchesFilters = (n: typeof graph.nodes[0]) => {
+      const matchesKind = activeKindFilters.has(n.kind);
       if (!matchesKind) return false;
       if (!query) return true;
 
-      const matchesName = node.name.toLowerCase().includes(query);
-      const matchesPath = node.path.toLowerCase().includes(query);
-      const matchesMember = node.members?.some(
+      const matchesName = n.name.toLowerCase().includes(query);
+      const matchesPath = n.path.toLowerCase().includes(query);
+      const matchesMember = n.members?.some(
         (m) =>
           m.name.toLowerCase().includes(query) ||
           m.type.toLowerCase().includes(query)
       );
       return matchesName || matchesPath || matchesMember;
-    });
+    };
 
+    if (scopeMode === 'file' && activeFilePath) {
+      // 1. Primary nodes belonging to the active file
+      const nativeNodes = graph.nodes.filter(
+        (n) => n.path === activeFilePath && matchesFilters(n)
+      );
+      const nativeNodeIds = new Set(nativeNodes.map((n) => n.id));
+
+      // 2. Find connected cross-file edges
+      const connectedEdges = graph.edges.filter(
+        (e) => nativeNodeIds.has(e.from) || nativeNodeIds.has(e.to)
+      );
+
+      // 3. Collect external nodes connected to native nodes
+      const externalNodeIds = new Set<string>();
+      connectedEdges.forEach((e) => {
+        if (!nativeNodeIds.has(e.from)) externalNodeIds.add(e.from);
+        if (!nativeNodeIds.has(e.to)) externalNodeIds.add(e.to);
+      });
+
+      const externalNodes: LayoutNode[] = graph.nodes
+        .filter((n) => externalNodeIds.has(n.id) && matchesFilters(n))
+        .map((n) => ({
+          ...n,
+          isExternal: true,
+        }));
+
+      const allScopedNodes: LayoutNode[] = [
+        ...nativeNodes.map((n) => ({ ...n, isExternal: false })),
+        ...externalNodes,
+      ];
+      const allScopedNodeIds = new Set(allScopedNodes.map((n) => n.id));
+
+      const visibleEdges = connectedEdges.filter(
+        (e) => allScopedNodeIds.has(e.from) && allScopedNodeIds.has(e.to)
+      );
+
+      return {
+        nodes: allScopedNodes,
+        edges: visibleEdges,
+      };
+    }
+
+    if (scopeMode === 'package' && activePackage) {
+      const pkgNodes = graph.nodes.filter(
+        (n) => n.metadata?.package === activePackage && matchesFilters(n)
+      );
+      const pkgNodeIds = new Set(pkgNodes.map((n) => n.id));
+
+      const visibleEdges = graph.edges.filter(
+        (e) => pkgNodeIds.has(e.from) && pkgNodeIds.has(e.to)
+      );
+
+      return {
+        nodes: pkgNodes.map((n) => ({ ...n, isExternal: false })),
+        edges: visibleEdges,
+      };
+    }
+
+    // Default: 'all' scope
+    const visibleNodes = graph.nodes.filter(matchesFilters);
     const visibleNodeIds = new Set(visibleNodes.map((n) => n.id));
     const visibleEdges = graph.edges.filter(
       (e) => visibleNodeIds.has(e.from) && visibleNodeIds.has(e.to)
     );
 
     return {
-      nodes: visibleNodes,
+      nodes: visibleNodes.map((n) => ({ ...n, isExternal: false })),
       edges: visibleEdges,
     };
-  }, [graph, searchQuery, activeKindFilters]);
+  }, [graph, scopeMode, activeFilePath, activePackage, searchQuery, activeKindFilters]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  const isInitialLayoutDone = React.useRef(false);
+  const isInitialLayoutDone = useRef(false);
+  const prevScopeRef = useRef(`${scopeMode}:${activeFilePath}:${activePackage}`);
 
-  // Compute layout whenever filtered graph, layoutDirection or layoutEpoch changes
+  // Compute layout whenever scopedGraph, layoutDirection or layoutEpoch changes
   useEffect(() => {
     const { nodes: layoutedNodes, edges: layoutedEdges } = computeGraphLayout(
-      filteredGraph,
+      scopedGraph,
       {
         direction: layoutDirection,
         nodeWidth: 320,
@@ -119,18 +208,33 @@ function CanvasContent() {
     setNodes(layoutedNodes);
     setEdges(formattedEdges);
 
-    // Only auto fit view on initial mount or when layoutEpoch (Auto Layout button) changes
-    if (!isInitialLayoutDone.current || layoutEpoch > 0) {
+    const currentScopeKey = `${scopeMode}:${activeFilePath}:${activePackage}`;
+    const isScopeChanged = prevScopeRef.current !== currentScopeKey;
+    prevScopeRef.current = currentScopeKey;
+
+    // Auto fit view on mount, on scope changes, or when Auto Layout button is pressed
+    if (!isInitialLayoutDone.current || isScopeChanged || layoutEpoch > 0) {
       isInitialLayoutDone.current = true;
       setTimeout(() => {
         reactFlowInstance.fitView({ padding: 0.25, duration: 400 });
       }, 50);
     }
-  }, [filteredGraph, layoutDirection, layoutEpoch, reactFlowInstance, setNodes, setEdges]);
+  }, [scopedGraph, layoutDirection, layoutEpoch, scopeMode, activeFilePath, activePackage, reactFlowInstance, setNodes, setEdges]);
 
   const onPaneClick = useCallback(() => {
     selectNode(null);
   }, [selectNode]);
+
+  // Current active file info
+  const activeFileInfo = useMemo(() => {
+    if (!activeFilePath) return null;
+    return allFiles.find((f) => f.path === activeFilePath) || {
+      path: activeFilePath,
+      name: activeFilePath.split('/').pop() || activeFilePath,
+      package: activePackage || 'pkg',
+      count: 0,
+    };
+  }, [activeFilePath, allFiles, activePackage]);
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
@@ -168,96 +272,280 @@ function CanvasContent() {
           style={{ backgroundColor: '#f8fafc' }}
         />
 
-        {/* Top Floating Breadcrumbs Bar */}
-        <Panel position="top-left" style={{ margin: '14px 16px' }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(8px)',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
-              padding: '6px 12px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-              gap: 6,
-              fontSize: '0.8rem',
-              color: '#475569',
-            }}
-          >
-            {breadcrumbs.map((crumb, idx) => (
-              <React.Fragment key={crumb.id}>
-                {idx > 0 && <ChevronRight size={13} color="#94a3b8" />}
-                <button
-                  onClick={() => popBreadcrumb(idx)}
+        {/* Top Header: Breadcrumbs & File Scope Switcher */}
+        <Panel position="top-left" style={{ margin: '14px 16px', maxWidth: 'calc(100% - 320px)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {/* Breadcrumbs Row */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(8px)',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                padding: '5px 12px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                gap: 4,
+                fontSize: '0.78rem',
+                color: '#475569',
+                width: 'fit-content',
+              }}
+            >
+              {breadcrumbs.map((crumb, idx) => (
+                <React.Fragment key={crumb.id + idx}>
+                  {idx > 0 && <ChevronRight size={13} color="#94a3b8" />}
+                  <button
+                    onClick={() => popBreadcrumb(idx)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '0.78rem',
+                      fontWeight: idx === breadcrumbs.length - 1 ? 700 : 500,
+                      color: idx === breadcrumbs.length - 1 ? '#0f172a' : '#64748b',
+                      backgroundColor: idx === breadcrumbs.length - 1 ? '#f1f5f9' : 'transparent',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      fontFamily: crumb.kind === 'file' || crumb.kind === 'type' ? 'var(--font-mono), monospace' : 'inherit',
+                    }}
+                    className="hover:bg-slate-100 transition-colors"
+                  >
+                    {crumb.name}
+                  </button>
+                </React.Fragment>
+              ))}
+
+              {scopeMode === 'file' && activeFileInfo && (
+                <span
                   style={{
-                    background: 'none',
-                    border: 'none',
-                    padding: '2px 6px',
+                    marginLeft: 6,
+                    fontSize: '0.68rem',
+                    color: '#2563eb',
+                    backgroundColor: '#eff6ff',
+                    border: '1px solid #bfdbfe',
+                    padding: '1px 6px',
                     borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '0.8rem',
-                    fontWeight: idx === breadcrumbs.length - 1 ? 600 : 400,
-                    color: idx === breadcrumbs.length - 1 ? '#0f172a' : '#64748b',
-                    backgroundColor: idx === breadcrumbs.length - 1 ? '#f1f5f9' : 'transparent',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 4,
+                    fontWeight: 600,
                   }}
-                  className="hover:bg-slate-100 transition-colors"
                 >
-                  {crumb.name}
-                </button>
-              </React.Fragment>
-            ))}
+                  {activeFileInfo.count} {activeFileInfo.count === 1 ? 'entity' : 'entities'} in file
+                </span>
+              )}
+            </div>
+
+            {/* File Switcher Tabs Bar */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(8px)',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                padding: '4px 6px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                gap: 4,
+                overflowX: 'auto',
+                maxWidth: '75vw',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  padding: '2px 8px',
+                  fontSize: '0.7rem',
+                  fontWeight: 700,
+                  color: '#64748b',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em',
+                }}
+              >
+                <FileCode2 size={13} color="#2563eb" />
+                <span>Files:</span>
+              </div>
+
+              {allFiles.map((file) => {
+                const isActive = scopeMode === 'file' && activeFilePath === file.path;
+                return (
+                  <button
+                    key={file.path}
+                    onClick={() => setActiveFile(file.path)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      padding: '4px 10px',
+                      borderRadius: '6px',
+                      border: isActive ? '1px solid #93c5fd' : '1px solid #f1f5f9',
+                      backgroundColor: isActive ? '#eff6ff' : '#ffffff',
+                      color: isActive ? '#1d4ed8' : '#475569',
+                      fontSize: '0.74rem',
+                      fontWeight: isActive ? 600 : 400,
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      fontFamily: 'var(--font-mono), monospace',
+                      transition: 'all 0.15s ease',
+                    }}
+                    className="hover:bg-slate-50"
+                  >
+                    <span>{file.name}</span>
+                    <span
+                      style={{
+                        fontSize: '0.62rem',
+                        backgroundColor: isActive ? '#dbeafe' : '#f1f5f9',
+                        color: isActive ? '#2563eb' : '#94a3b8',
+                        padding: '1px 5px',
+                        borderRadius: '4px',
+                        fontWeight: 600,
+                      }}
+                    >
+                      {file.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </Panel>
 
-        {/* Floating Top-Right Quick Search Bar */}
+        {/* Top-Right: Scope Segmented Controller & Quick Search */}
         <Panel position="top-right" style={{ margin: '14px 16px' }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
-              padding: '4px 10px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-              width: 240,
-              gap: 6,
-            }}
-          >
-            <Search size={14} color="#94a3b8" />
-            <input
-              type="text"
-              placeholder="Search entities, fields, methods..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+            {/* Scope Mode Control */}
+            <div
               style={{
-                border: 'none',
-                outline: 'none',
-                width: '100%',
-                fontSize: '0.78rem',
-                color: '#0f172a',
-                fontFamily: 'var(--font-sans)',
+                display: 'flex',
+                alignItems: 'center',
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(8px)',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                padding: '3px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                gap: 2,
               }}
-            />
-            {searchQuery && (
+            >
               <button
-                onClick={() => setSearchQuery('')}
+                onClick={() => {
+                  if (activeFilePath) setScopeMode('file');
+                  else if (allFiles[0]) setActiveFile(allFiles[0].path);
+                }}
                 style={{
-                  background: 'none',
+                  padding: '4px 10px',
+                  borderRadius: '5px',
                   border: 'none',
-                  fontSize: '0.75rem',
-                  color: '#94a3b8',
+                  backgroundColor: scopeMode === 'file' ? '#2563eb' : 'transparent',
+                  color: scopeMode === 'file' ? '#ffffff' : '#64748b',
+                  fontSize: '0.74rem',
+                  fontWeight: 600,
                   cursor: 'pointer',
-                  padding: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  transition: 'all 0.15s ease',
                 }}
               >
-                ✕
+                <FileCode2 size={13} />
+                File Schema
               </button>
-            )}
+
+              <button
+                onClick={() => {
+                  const pkg = activePackage || 'auth';
+                  setActivePackage(pkg);
+                }}
+                style={{
+                  padding: '4px 10px',
+                  borderRadius: '5px',
+                  border: 'none',
+                  backgroundColor: scopeMode === 'package' ? '#2563eb' : 'transparent',
+                  color: scopeMode === 'package' ? '#ffffff' : '#64748b',
+                  fontSize: '0.74rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <Boxes size={13} />
+                Package View
+              </button>
+
+              <button
+                onClick={() => setScopeMode('all')}
+                style={{
+                  padding: '4px 10px',
+                  borderRadius: '5px',
+                  border: 'none',
+                  backgroundColor: scopeMode === 'all' ? '#2563eb' : 'transparent',
+                  color: scopeMode === 'all' ? '#ffffff' : '#64748b',
+                  fontSize: '0.74rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <LayoutGrid size={13} />
+                Full Codebase
+              </button>
+            </div>
+
+            {/* Quick Search Bar */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                backgroundColor: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                padding: '4px 10px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                width: 240,
+                gap: 6,
+              }}
+            >
+              <Search size={14} color="#94a3b8" />
+              <input
+                type="text"
+                placeholder="Search entities, fields, methods..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  border: 'none',
+                  outline: 'none',
+                  width: '100%',
+                  fontSize: '0.78rem',
+                  color: '#0f172a',
+                  fontFamily: 'var(--font-sans)',
+                }}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    fontSize: '0.75rem',
+                    color: '#94a3b8',
+                    cursor: 'pointer',
+                    padding: 2,
+                  }}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
         </Panel>
 
@@ -295,7 +583,7 @@ function CanvasContent() {
               }}
               className="hover:bg-slate-50 transition-colors"
             >
-              <Sparkles size={14} color="#3b82f6" />
+              <Sparkles size={14} color="#2563eb" />
               Auto Layout
             </button>
 
@@ -435,6 +723,7 @@ function CanvasContent() {
           <MiniMap
             nodeColor={(n) => {
               if (n.id === selectedNodeId) return '#3b82f6';
+              if (n.data?.isExternal) return '#e2e8f0';
               return '#cbd5e1';
             }}
             nodeStrokeColor="#ffffff"

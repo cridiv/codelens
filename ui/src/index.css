@@ -133,6 +133,16 @@ body, html {
   box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04) !important;
 }
 
+.schema-node-card.is-external-ref {
+  background-color: #fbfcfe !important;
+  opacity: 0.92;
+}
+
+.schema-node-card.is-external-ref:hover {
+  opacity: 1;
+  border-color: #60a5fa !important;
+}
+
 .schema-member-row:hover {
   background-color: #f1f5f9 !important;
 }
@@ -152,3 +162,4 @@ body, html {
     opacity: 0.8;
   }
 }
+

@@ -1,6 +1,15 @@
 import dagre from 'dagre';
 import { Node as RFNode, Edge as RFEdge } from 'reactflow';
-import { Graph } from '../types/graph';
+import { Node, Edge } from '../types/graph';
+
+export interface LayoutNode extends Node {
+  isExternal?: boolean;
+}
+
+export interface LayoutGraph {
+  nodes: LayoutNode[];
+  edges: Edge[];
+}
 
 export interface LayoutOptions {
   direction?: 'LR' | 'TB' | 'RL' | 'BT';
@@ -11,7 +20,7 @@ export interface LayoutOptions {
 }
 
 export function computeGraphLayout(
-  graph: Graph,
+  graph: LayoutGraph,
   options: LayoutOptions = {}
 ): { nodes: RFNode[]; edges: RFEdge[] } {
   const {
@@ -34,7 +43,7 @@ export function computeGraphLayout(
   // Calculate approximate height based on member count
   const rfNodes: RFNode[] = graph.nodes.map((node) => {
     const memberCount = node.members?.length || 0;
-    const computedHeight = Math.max(140, 80 + memberCount * 28);
+    const computedHeight = Math.max(140, 80 + memberCount * 28 + (node.isExternal ? 30 : 0));
 
     dagreGraph.setNode(node.id, {
       width: nodeWidth,
@@ -47,6 +56,7 @@ export function computeGraphLayout(
       data: {
         node,
         raw: node,
+        isExternal: Boolean(node.isExternal),
       },
       position: { x: 0, y: 0 },
     };
@@ -75,7 +85,7 @@ export function computeGraphLayout(
   const layoutedNodes = rfNodes.map((node) => {
     const nodeWithPos = dagreGraph.node(node.id);
     const memberCount = (node.data.node.members?.length || 0);
-    const computedHeight = Math.max(140, 80 + memberCount * 28);
+    const computedHeight = Math.max(140, 80 + memberCount * 28 + (node.data.isExternal ? 30 : 0));
 
     return {
       ...node,
