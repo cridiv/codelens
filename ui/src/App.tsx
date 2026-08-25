@@ -1,47 +1,77 @@
-import { useState } from 'react'
+import { useEffect } from 'react';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { useStore } from './store/useStore';
+import { Navbar } from './components/Navbar';
+import { Canvas } from './components/Canvas';
+import { HierarchyPanel } from './components/HierarchyPanel';
+import { ExplanationPanel } from './components/ExplanationPanel';
+import { Graph } from './types/graph';
 
-export default function App() {
-  const [nodeCount] = useState<number>(0)
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
+
+function VisualizerApp() {
+  const { setGraph, isLeftPanelOpen, isRightPanelOpen } = useStore();
+
+  // Try to fetch live graph from Go backend if available
+  const { data: serverGraph } = useQuery<Graph>({
+    queryKey: ['codebase-graph'],
+    queryFn: async () => {
+      const res = await fetch('/api/graph');
+      if (!res.ok) throw new Error('API not reachable');
+      return res.json();
+    },
+    enabled: true,
+    retry: false,
+  });
+
+  useEffect(() => {
+    if (serverGraph && serverGraph.nodes?.length > 0) {
+      setGraph(serverGraph);
+    }
+  }, [serverGraph, setGraph]);
 
   return (
     <div className="app-container">
-      <header className="topbar">
-        <div className="brand">
-          <span>CodeLens</span>
-          <span className="brand-badge">v0.1.0</span>
-        </div>
-        <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-          {nodeCount > 0 ? `${nodeCount} nodes loaded` : 'Ready to explore'}
-        </div>
-      </header>
+      <Navbar />
 
-      <main className="main-layout">
-        {/* Left: Hierarchy Tree */}
-        <aside className="panel left-panel">
-          <div className="panel-header">Codebase Hierarchy</div>
-          <div style={{ padding: '1rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-            Hierarchy tree will display packages, files, and functions.
-          </div>
-        </aside>
+      <main
+        className="main-layout"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: `${isLeftPanelOpen ? '300px' : '0px'} 1fr ${isRightPanelOpen ? '360px' : '0px'}`,
+          transition: 'grid-template-columns 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+        }}
+      >
+        {/* Left: Codebase / Schema Hierarchy Panel */}
+        <div style={{ overflow: 'hidden', height: '100%' }}>
+          {isLeftPanelOpen && <HierarchyPanel />}
+        </div>
 
-        {/* Center: Graph Canvas */}
+        {/* Center: Interactive React Flow Schema Canvas */}
         <section className="canvas-area">
-          <div className="placeholder-card">
-            <h2>Interactive Codebase Map</h2>
-            <p>
-              Run CodeLens on a repository to visualize dependencies, call graphs, and architecture.
-            </p>
-          </div>
+          <Canvas />
         </section>
 
-        {/* Right: AI Explanation Sidebar */}
-        <aside className="panel right-panel">
-          <div className="panel-header">AI Architecture Insights</div>
-          <div style={{ padding: '1rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-            Select any node in the graph to get an architectural breakdown.
-          </div>
-        </aside>
+        {/* Right: AI & Schema Inspector Sidebar */}
+        <div style={{ overflow: 'hidden', height: '100%' }}>
+          {isRightPanelOpen && <ExplanationPanel />}
+        </div>
       </main>
     </div>
-  )
+  );
+}
+
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <VisualizerApp />
+    </QueryClientProvider>
+  );
 }

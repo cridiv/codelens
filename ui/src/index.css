@@ -1,22 +1,30 @@
 :root {
-  --bg-primary: #090d16;
-  --bg-secondary: #0f172a;
-  --bg-tertiary: #1e293b;
-  --bg-card: rgba(15, 23, 42, 0.75);
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-focus: #6366f1;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
+  /* Light Theme Color Palette (Supabase Studio / Stripe clean aesthetic) */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --bg-card: #ffffff;
+  
+  --border-subtle: #e2e8f0;
+  --border-muted: #cbd5e1;
+  --border-focus: #3b82f6;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
   --text-muted: #64748b;
-  --accent: #6366f1;
-  --accent-hover: #4f46e5;
-  --accent-glow: rgba(99, 102, 241, 0.25);
-  --pkg-node: #38bdf8;
-  --file-node: #818cf8;
-  --func-node: #34d399;
-  --type-node: #fbbf24;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+
+  --accent-primary: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-light: #eff6ff;
+
+  --node-type: #059669;
+  --node-pkg: #4f46e5;
+  --node-file: #7c3aed;
+  --node-func: #16a34a;
+  --node-interface: #d97706;
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', Menlo, Monaco, Consolas, monospace;
 }
 
 * {
@@ -29,10 +37,11 @@ body, html {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: var(--bg-primary);
+  background-color: var(--bg-secondary);
   color: var(--text-primary);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
@@ -47,106 +56,99 @@ body, html {
   flex-direction: column;
   height: 100vh;
   width: 100vw;
-  background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 60%),
-              var(--bg-primary);
-}
-
-.topbar {
-  height: 52px;
-  border-bottom: 1px solid var(--border-subtle);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 1.25rem;
-  background: rgba(9, 13, 22, 0.85);
-  backdrop-filter: blur(12px);
-  z-index: 10;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-weight: 700;
-  font-size: 1.05rem;
-  letter-spacing: -0.02em;
-  color: #fff;
-}
-
-.brand-badge {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  padding: 0.15rem 0.45rem;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  background-color: var(--bg-primary);
 }
 
 .main-layout {
-  display: grid;
-  grid-template-columns: 280px 1fr 340px;
   flex: 1;
   height: calc(100vh - 52px);
   overflow: hidden;
-}
-
-.panel {
-  background: var(--bg-secondary);
-  border-color: var(--border-subtle);
-  display: flex;
-  flex-direction: column;
-}
-
-.left-panel {
-  border-right: 1px solid var(--border-subtle);
-}
-
-.right-panel {
-  border-left: 1px solid var(--border-subtle);
-}
-
-.panel-header {
-  padding: 0.85rem 1rem;
-  border-bottom: 1px solid var(--border-subtle);
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  background-color: var(--bg-secondary);
 }
 
 .canvas-area {
   position: relative;
   width: 100%;
   height: 100%;
-  background: #060911;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background-color: #f8fafc;
+  overflow: hidden;
 }
 
-.placeholder-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  padding: 2rem;
-  text-align: center;
-  max-width: 420px;
-  backdrop-filter: blur(16px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-.placeholder-card h2 {
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #fff, #94a3b8);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.placeholder-card p {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.5;
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* React Flow Light Theme Enhancements */
+.react-flow__pane {
+  cursor: grab;
+}
+
+.react-flow__pane:active {
+  cursor: grabbing;
+}
+
+.react-flow__controls {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--border-subtle) !important;
+  background: #ffffff !important;
+}
+
+.react-flow__controls-button {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  fill: #475569 !important;
+}
+
+.react-flow__controls-button:hover {
+  background-color: var(--bg-tertiary) !important;
+}
+
+.react-flow__edge-path {
+  stroke-linecap: round;
+}
+
+/* Schema Node Hover & Transitions */
+.schema-node-card {
+  user-select: none;
+}
+
+.schema-node-card:hover {
+  border-color: #93c5fd !important;
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04) !important;
+}
+
+.schema-member-row:hover {
+  background-color: #f1f5f9 !important;
+}
+
+/* Animations */
+@keyframes pulseRing {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
 }
