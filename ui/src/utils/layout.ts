@@ -79,6 +79,7 @@ export function computeGraphLayout(
 
     return {
       ...node,
+      draggable: false,
       position: {
         // Dagre centers nodes, React Flow coordinates are top-left
         x: nodeWithPos ? nodeWithPos.x - nodeWidth / 2 : 0,

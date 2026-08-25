@@ -123,7 +123,7 @@ export const SchemaNode = memo(({ data, selected }: NodeProps<SchemaNodeData>) =
           ? '0 10px 25px -3px rgba(16, 185, 129, 0.15)'
           : '0 4px 12px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)',
         transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-        cursor: 'grab',
+        cursor: 'pointer',
         position: 'relative',
       }}
     >

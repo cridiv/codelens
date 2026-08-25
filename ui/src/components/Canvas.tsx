@@ -9,6 +9,7 @@ import ReactFlow, {
   Panel,
   useReactFlow,
   ReactFlowProvider,
+  PanOnScrollMode,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -91,6 +92,8 @@ function CanvasContent() {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
+  const isInitialLayoutDone = React.useRef(false);
+
   // Compute layout whenever filtered graph, layoutDirection or layoutEpoch changes
   useEffect(() => {
     const { nodes: layoutedNodes, edges: layoutedEdges } = computeGraphLayout(
@@ -116,25 +119,14 @@ function CanvasContent() {
     setNodes(layoutedNodes);
     setEdges(formattedEdges);
 
-    // Auto fit view on initial layout or re-layout
-    setTimeout(() => {
-      reactFlowInstance.fitView({ padding: 0.25, duration: 400 });
-    }, 50);
-  }, [filteredGraph, layoutDirection, layoutEpoch, reactFlowInstance, setNodes, setEdges]);
-
-  // Center on selected node if changed from outside
-  useEffect(() => {
-    if (selectedNodeId) {
-      const node = nodes.find((n) => n.id === selectedNodeId);
-      if (node) {
-        reactFlowInstance.setCenter(
-          node.position.x + 160,
-          node.position.y + 100,
-          { zoom: 1, duration: 500 }
-        );
-      }
+    // Only auto fit view on initial mount or when layoutEpoch (Auto Layout button) changes
+    if (!isInitialLayoutDone.current || layoutEpoch > 0) {
+      isInitialLayoutDone.current = true;
+      setTimeout(() => {
+        reactFlowInstance.fitView({ padding: 0.25, duration: 400 });
+      }, 50);
     }
-  }, [selectedNodeId, nodes, reactFlowInstance]);
+  }, [filteredGraph, layoutDirection, layoutEpoch, reactFlowInstance, setNodes, setEdges]);
 
   const onPaneClick = useCallback(() => {
     selectNode(null);
@@ -151,8 +143,17 @@ function CanvasContent() {
         edgeTypes={edgeTypes}
         onPaneClick={onPaneClick}
         fitView
-        minZoom={0.2}
+        nodesDraggable={false}
+        nodesConnectable={false}
+        elementsSelectable={true}
+        minZoom={0.15}
         maxZoom={2.5}
+        panOnScroll={true}
+        panOnScrollMode={PanOnScrollMode.Free}
+        zoomOnPinch={true}
+        zoomOnScroll={false}
+        panOnDrag={[1, 2]}
+        preventScrolling={true}
         defaultEdgeOptions={{
           type: 'customEdge',
         }}
