@@ -1,5 +1,5 @@
 // Package openai provides an LLM client for any OpenAI-compatible API endpoint.
-// This covers OpenAI, NVIDIA NIM (DeepSeek, Llama, etc.), and self-hosted vLLM.
+// This covers NVIDIA NIM (Llama, Nemotron, etc.), OpenAI, and self-hosted endpoints.
 package openai
 
 import (
@@ -20,10 +20,10 @@ const (
 	// NVIDIANIMBaseURL is the base URL for NVIDIA NIM hosted models.
 	NVIDIANIMBaseURL = "https://integrate.api.nvidia.com/v1"
 
-	// DefaultModel is the latest DeepSeek model available on NVIDIA NIM.
-	DefaultModel = "deepseek-ai/deepseek-v4-flash-0731"
+	// DefaultModel is the Llama-70B model on NVIDIA NIM.
+	DefaultModel = "meta/llama-3.1-70b-instruct"
 
-	defaultTimeout = 120 * time.Second
+	defaultTimeout = 90 * time.Second
 )
 
 // Client calls any OpenAI-compatible chat completions endpoint.
@@ -102,8 +102,8 @@ func (c *Client) Explain(ctx context.Context, node graph.Node, subgraph graph.Gr
 			{Role: "system", Content: systemPrompt},
 			{Role: "user", Content: prompt},
 		},
-		Temperature: 0.3,
-		MaxTokens:   2048,
+		Temperature: 0.2,
+		MaxTokens:   2500,
 	}
 
 	body, err := json.Marshal(reqBody)
@@ -151,10 +151,9 @@ func (c *Client) Explain(ctx context.Context, node graph.Node, subgraph graph.Gr
 
 // ── Prompt construction ───────────────────────────────────────────────────────
 
-const systemPrompt = `You are an expert software architect explaining Go codebases to developers.
-Be precise, concrete, and grounded in the actual code context provided.
-Never hallucinate dependencies or behaviors not shown in the graph or source.
-Structure your response with clear numbered sections.`
+const systemPrompt = `You are a distinguished systems architect and technical writer with the educational clarity, rigor, and engaging flow of Martin Kleppmann (author of Designing Data-Intensive Applications).
+Explain codebase components with crystal-clear intuition, concrete examples, and precise architectural context.
+Ensure transitions between sections are natural and engaging.`
 
 func buildPrompt(node graph.Node, subgraph graph.Graph, sourceCode string) string {
 	pkg := node.Metadata["package"]
@@ -162,7 +161,6 @@ func buildPrompt(node graph.Node, subgraph graph.Graph, sourceCode string) strin
 		pkg = "unknown"
 	}
 
-	// Summarise neighbours concisely
 	var callers, callees, types []string
 	for _, e := range subgraph.Edges {
 		switch e.Kind {
@@ -186,31 +184,40 @@ func buildPrompt(node graph.Node, subgraph graph.Graph, sourceCode string) strin
 	}
 
 	var sb strings.Builder
-	fmt.Fprintf(&sb, "Explain the following Go %s named %q in package %q.\n\n", node.Kind, node.Name, pkg)
+	fmt.Fprintf(&sb, "Explain the Go component `%s` (%s) in package `%s` located at `%s`.\n\n", node.Name, node.Kind, pkg, node.Path)
 
-	fmt.Fprintln(&sb, "Source code / signature:")
+	fmt.Fprintln(&sb, "### Code Context / Signature:")
 	fmt.Fprintln(&sb, "```go")
 	fmt.Fprintln(&sb, sourceCode)
 	fmt.Fprintln(&sb, "```")
 
 	if len(callers) > 0 {
-		fmt.Fprintf(&sb, "\nCalled by: %s\n", strings.Join(callers, ", "))
+		fmt.Fprintf(&sb, "\n- Inbound Callers: %s\n", strings.Join(callers, ", "))
 	}
 	if len(callees) > 0 {
-		fmt.Fprintf(&sb, "Calls: %s\n", strings.Join(callees, ", "))
+		fmt.Fprintf(&sb, "- Outbound Calls: %s\n", strings.Join(callees, ", "))
 	}
 	if len(types) > 0 {
-		fmt.Fprintf(&sb, "Implements/References: %s\n", strings.Join(types, ", "))
+		fmt.Fprintf(&sb, "- Types Implemented / Referenced: %s\n", strings.Join(types, ", "))
 	}
 
 	fmt.Fprintln(&sb, `
-Please structure your explanation exactly as:
+Please structure your architectural explanation strictly with these sections:
 
-1. High-level intuition — what is this trying to accomplish?
-2. Purpose — why does it exist in this system?
-3. How it works — what are the major steps or responsibilities?
-4. Dependencies — what does it call, what calls it, what types does it depend on?
-5. Code-level detail — what do the important implementation choices mean?`)
+1. Background
+Provide the necessary context. Include a deep, accessible background for someone new to this area of the codebase, followed by the narrow context directly relevant to this specific component and package.
+
+2. Intuition
+Explain the core mental model and purpose. Why does this design exist? Use a simple, concrete example with toy data or visual representations to illustrate how data or control flows through it.
+
+3. Code Walkthrough
+Walk through the mechanics of the implementation in an orderly, understandable sequence. Highlight the main responsibilities, invariants, and key decision points.
+
+4. Dependencies & Graph Position
+Describe how this component interacts with the surrounding system (callers, callees, and data models). Explain what upstream callers rely on it for, and what lower-level subsystems it delegates work to.
+
+5. Key Takeaways & Edge Cases
+Highlight crucial invariants, failure modes, concurrency/lifecycle considerations, or non-obvious details to keep in mind.`)
 
 	return sb.String()
 }
