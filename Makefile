@@ -4,14 +4,14 @@ ui:
 	cd ui && npm install && npm run build
 
 build: ui
-	go build -o codeatlas ./cmd/codeatlas
+	go build -o codelens ./cmd/codelens
 
 run:
-	go run ./cmd/codeatlas .
+	go run ./cmd/codelens .
 
 test:
 	go test ./...
 	cd ui && npm test
 
 clean:
-	rm -rf codeatlas ui/dist .codeatlas-cache
+	rm -rf codelens codeatlas ui/dist .codelens-cache .codeatlas-cache
