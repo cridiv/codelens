@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io/fs"
 	"log"
 	"os"
 	"os/signal"
@@ -14,7 +15,9 @@ import (
 
 	goanalyzer "github.com/cridiv/codelens/analyzer/golang"
 	"github.com/cridiv/codelens/graph"
+	llmopenai "github.com/cridiv/codelens/llm/openai"
 	"github.com/cridiv/codelens/server"
+	uiembed "github.com/cridiv/codelens"
 )
 
 // cacheFileName is written inside the analysed repo root.
@@ -25,12 +28,13 @@ func main() {
 	port := flag.Int("port", 5555, "Local server port")
 	noOpen := flag.Bool("no-open", false, "Don't auto-open browser after starting")
 	useCache := flag.Bool("cache", true, "Cache analysis to .codeatlas-cache/graph.json")
+	invalidateCache := flag.Bool("invalidate-cache", false, "Force re-analysis even if cache is valid")
 	verbose := flag.Bool("verbose", false, "Verbose request logging")
 
-	// LLM flags (implementations added in later phases)
-	_ = flag.String("llm-provider", "ollama", "LLM provider: ollama | openai | anthropic")
-	_ = flag.String("llm-model", "", "Model name (provider-dependent default if empty)")
-	_ = flag.String("llm-key", "", "API key (falls back to CODEATLAS_LLM_KEY env var)")
+	llmProvider := flag.String("llm-provider", "nvidia-nim", "LLM provider: nvidia-nim | openai | ollama | none")
+	llmModel := flag.String("llm-model", "", "Model name (default: deepseek-ai/deepseek-r1 for nvidia-nim)")
+	llmKey := flag.String("llm-key", "", "API key (falls back to MODEL_API_KEY env var)")
+	llmBaseURL := flag.String("llm-base-url", "", "Override LLM base URL (optional)")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: codeatlas [path] [flags]\n\n")
@@ -53,26 +57,45 @@ func main() {
 	}
 
 	// ── Load or build graph ────────────────────────────────────────────────────
-	g, err := loadGraph(absRepoPath, *useCache, *verbose)
+	cacheValid := *useCache && !*invalidateCache
+	g, err := loadGraph(absRepoPath, cacheValid, *verbose)
 	if err != nil {
 		log.Fatalf("analysis failed: %v", err)
+	}
+
+	// ── Configure LLM ─────────────────────────────────────────────────────────
+	apiKey := *llmKey
+	if apiKey == "" {
+		apiKey = os.Getenv("MODEL_API_KEY")
+	}
+	if apiKey == "" {
+		apiKey = os.Getenv("CODEATLAS_LLM_KEY")
+	}
+
+	llmClient := buildLLMClient(*llmProvider, *llmModel, *llmBaseURL, apiKey, *verbose)
+
+	// ── Embed UI ───────────────────────────────────────────────────────────────
+	// Strip the "ui/dist" prefix so that index.html is at "/" not "/ui/dist/".
+	uiFS, err := fs.Sub(uiembed.FS, "ui/dist")
+	if err != nil {
+		log.Printf("[embed] could not sub ui/dist: %v — UI will not be served", err)
+		uiFS = nil
 	}
 
 	// ── Start server ───────────────────────────────────────────────────────────
 	opts := server.Options{
 		Port:    *port,
 		Graph:   g,
-		LLM:     nil, // populated in a later phase when llm flags are wired
-		UIFiles: nil, // populated once ui/dist is embedded (Makefile phase)
+		LLM:     llmClient,
+		UIFiles: uiFS,
 		Verbose: *verbose,
 	}
 
 	srv := server.New(opts)
 
 	if !*noOpen {
-		// Open the browser shortly after the server is up.
 		go func() {
-			time.Sleep(300 * time.Millisecond)
+			time.Sleep(400 * time.Millisecond)
 			openBrowser(fmt.Sprintf("http://localhost:%d", *port))
 		}()
 	}
@@ -81,14 +104,80 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	fmt.Printf("CodeLens — analysed %d nodes, %d edges\n", len(g.Nodes), len(g.Edges))
-	fmt.Printf("Open http://localhost:%d to explore your codebase.\n", *port)
+	fmt.Printf("╭─────────────────────────────────────────╮\n")
+	fmt.Printf("│  CodeLens — Don't just read. Explore.   │\n")
+	fmt.Printf("├─────────────────────────────────────────┤\n")
+	fmt.Printf("│  Nodes : %-5d   Edges : %-5d           │\n", len(g.Nodes), len(g.Edges))
+	fmt.Printf("│  URL   : http://localhost:%-5d           │\n", *port)
+	fmt.Printf("╰─────────────────────────────────────────╯\n")
 
 	if err := srv.Start(ctx); err != nil {
 		log.Fatalf("server error: %v", err)
 	}
 
 	log.Println("CodeLens — shut down cleanly")
+}
+
+// buildLLMClient selects and constructs an LLM client based on the provider flag.
+func buildLLMClient(provider, model, baseURL, apiKey string, verbose bool) *llmopenai.Client {
+	switch provider {
+	case "none", "":
+		if verbose {
+			log.Println("[llm] no provider configured — /api/explain will return 503")
+		}
+		return nil
+	case "nvidia-nim":
+		if apiKey == "" {
+			log.Println("[llm] warn: nvidia-nim selected but MODEL_API_KEY is not set — /api/explain will fail")
+		}
+		if model == "" {
+			model = llmopenai.DefaultModel
+		}
+		if baseURL == "" {
+			baseURL = llmopenai.NVIDIANIMBaseURL
+		}
+		if verbose {
+			log.Printf("[llm] nvidia-nim: model=%s base=%s", model, baseURL)
+		}
+		return llmopenai.New(llmopenai.Options{
+			BaseURL: baseURL,
+			APIKey:  apiKey,
+			Model:   model,
+		})
+	case "openai":
+		if baseURL == "" {
+			baseURL = "https://api.openai.com/v1"
+		}
+		if model == "" {
+			model = "gpt-4o"
+		}
+		if verbose {
+			log.Printf("[llm] openai: model=%s", model)
+		}
+		return llmopenai.New(llmopenai.Options{
+			BaseURL: baseURL,
+			APIKey:  apiKey,
+			Model:   model,
+		})
+	case "ollama":
+		if baseURL == "" {
+			baseURL = "http://localhost:11434/v1"
+		}
+		if model == "" {
+			model = "codellama"
+		}
+		if verbose {
+			log.Printf("[llm] ollama: model=%s base=%s", model, baseURL)
+		}
+		return llmopenai.New(llmopenai.Options{
+			BaseURL: baseURL,
+			APIKey:  "ollama", // Ollama ignores the key but the header is required
+			Model:   model,
+		})
+	default:
+		log.Printf("[llm] unknown provider %q — treating as none", provider)
+		return nil
+	}
 }
 
 // loadGraph either reads a valid cache or re-runs the analyzer.
@@ -112,7 +201,8 @@ func loadGraph(absRepoPath string, useCache bool, verbose bool) (*graph.Graph, e
 		return nil, fmt.Errorf("analyzing %s: %w", absRepoPath, err)
 	}
 
-	log.Printf("[analyzer] done in %s — %d nodes, %d edges", time.Since(start).Round(time.Millisecond), len(g.Nodes), len(g.Edges))
+	log.Printf("[analyzer] done in %s — %d nodes, %d edges",
+		time.Since(start).Round(time.Millisecond), len(g.Nodes), len(g.Edges))
 
 	if useCache {
 		if err := writeCache(cacheFile, g); err != nil && verbose {
@@ -124,14 +214,13 @@ func loadGraph(absRepoPath string, useCache bool, verbose bool) (*graph.Graph, e
 }
 
 // tryReadCache returns the cached graph if the cache file is newer than any
-// source file in the repo. Returns (nil, false) on any cache miss or error.
+// .go source file in the repo. Returns (nil, false) on any miss or error.
 func tryReadCache(cacheFile, repoPath string, verbose bool) (*graph.Graph, bool) {
 	cacheStat, err := os.Stat(cacheFile)
 	if err != nil {
-		return nil, false // no cache
+		return nil, false
 	}
 
-	// Walk repo to find the newest source file modification time.
 	var newestSrc time.Time
 	_ = filepath.WalkDir(repoPath, func(path string, d os.DirEntry, err error) error {
 		if err != nil || d.IsDir() {

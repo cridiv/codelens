@@ -1,0 +1,1675 @@
+{
+  "nodes": [
+    {
+      "id": "pkg:github.com/cridiv/codelens",
+      "kind": "package",
+      "name": "uiembed",
+      "path": ".",
+      "metadata": {
+        "import_path": "github.com/cridiv/codelens",
+        "package": "uiembed"
+      }
+    },
+    {
+      "id": "file:uiembed.go",
+      "kind": "file",
+      "name": "uiembed.go",
+      "path": "uiembed.go",
+      "metadata": {
+        "package": "uiembed",
+        "package_path": "github.com/cridiv/codelens"
+      }
+    },
+    {
+      "id": "pkg:github.com/cridiv/codelens/graph",
+      "kind": "package",
+      "name": "graph",
+      "path": "graph",
+      "metadata": {
+        "import_path": "github.com/cridiv/codelens/graph",
+        "package": "graph"
+      }
+    },
+    {
+      "id": "file:graph/graph.go",
+      "kind": "file",
+      "name": "graph.go",
+      "path": "graph/graph.go",
+      "metadata": {
+        "package": "graph",
+        "package_path": "github.com/cridiv/codelens/graph"
+      }
+    },
+    {
+      "id": "type:github.com/cridiv/codelens/graph.Node",
+      "kind": "type",
+      "name": "Node",
+      "path": "graph/graph.go",
+      "metadata": {
+        "doc": "Node represents any architectural entity in the codebase (package, file, type, function, interface, table).",
+        "file": "graph.go",
+        "package": "graph",
+        "package_path": "github.com/cridiv/codelens/graph",
+        "signature": "type Node struct"
+      }
+    },
+    {
+      "id": "type:github.com/cridiv/codelens/graph.Edge",
+      "kind": "type",
+      "name": "Edge",
+      "path": "graph/graph.go",
+      "metadata": {
+        "doc": "Edge represents a directed architectural relationship between two nodes.",
+        "file": "graph.go",
+        "package": "graph",
+        "package_path": "github.com/cridiv/codelens/graph",
+        "signature": "type Edge struct"
+      }
+    },
+    {
+      "id": "type:github.com/cridiv/codelens/graph.Graph",
+      "kind": "type",
+      "name": "Graph",
+      "path": "graph/graph.go",
+      "metadata": {
+        "doc": "Graph represents the complete or partial architectural graph of a codebase.",
+        "file": "graph.go",
+        "package": "graph",
+        "package_path": "github.com/cridiv/codelens/graph",
+        "signature": "type Graph struct"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/graph.New",
+      "kind": "function",
+      "name": "New",
+      "path": "graph/graph.go",
+      "metadata": {
+        "doc": "New creates an empty Graph.",
+        "file": "graph.go",
+        "package": "graph",
+        "package_path": "github.com/cridiv/codelens/graph",
+        "signature": "func New(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/graph.Graph.AddNode",
+      "kind": "function",
+      "name": "AddNode",
+      "path": "graph/graph.go",
+      "metadata": {
+        "doc": "AddNode adds a node to the graph if it doesn't already exist.",
+        "file": "graph.go",
+        "package": "graph",
+        "package_path": "github.com/cridiv/codelens/graph",
+        "receiver": "Graph",
+        "signature": "func (Graph) AddNode(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/graph.Graph.AddEdge",
+      "kind": "function",
+      "name": "AddEdge",
+      "path": "graph/graph.go",
+      "metadata": {
+        "doc": "AddEdge adds an edge to the graph. Silently skips duplicates (same From, To, Kind).",
+        "file": "graph.go",
+        "package": "graph",
+        "package_path": "github.com/cridiv/codelens/graph",
+        "receiver": "Graph",
+        "signature": "func (Graph) AddEdge(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/graph.Graph.NodeByID",
+      "kind": "function",
+      "name": "NodeByID",
+      "path": "graph/graph.go",
+      "metadata": {
+        "doc": "NodeByID finds a node by its unique ID.",
+        "file": "graph.go",
+        "package": "graph",
+        "package_path": "github.com/cridiv/codelens/graph",
+        "receiver": "Graph",
+        "signature": "func (Graph) NodeByID(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/graph.Graph.NeighborsOf",
+      "kind": "function",
+      "name": "NeighborsOf",
+      "path": "graph/graph.go",
+      "metadata": {
+        "doc": "NeighborsOf returns a one-hop subgraph containing the target node,\nall immediately connected nodes (incoming and outgoing), and all incident edges between them.",
+        "file": "graph.go",
+        "package": "graph",
+        "package_path": "github.com/cridiv/codelens/graph",
+        "receiver": "Graph",
+        "signature": "func (Graph) NeighborsOf(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/graph.Graph.NodesByFile",
+      "kind": "function",
+      "name": "NodesByFile",
+      "path": "graph/graph.go",
+      "metadata": {
+        "doc": "NodesByFile returns all nodes belonging to a specific file path.",
+        "file": "graph.go",
+        "package": "graph",
+        "package_path": "github.com/cridiv/codelens/graph",
+        "receiver": "Graph",
+        "signature": "func (Graph) NodesByFile(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/graph.Graph.NodesByPackage",
+      "kind": "function",
+      "name": "NodesByPackage",
+      "path": "graph/graph.go",
+      "metadata": {
+        "doc": "NodesByPackage returns all nodes belonging to a specific package name.",
+        "file": "graph.go",
+        "package": "graph",
+        "package_path": "github.com/cridiv/codelens/graph",
+        "receiver": "Graph",
+        "signature": "func (Graph) NodesByPackage(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/graph.Graph.ToJSON",
+      "kind": "function",
+      "name": "ToJSON",
+      "path": "graph/graph.go",
+      "metadata": {
+        "doc": "ToJSON serializes the Graph into pretty-printed JSON bytes.",
+        "file": "graph.go",
+        "package": "graph",
+        "package_path": "github.com/cridiv/codelens/graph",
+        "receiver": "Graph",
+        "signature": "func (Graph) ToJSON(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/graph.FromJSON",
+      "kind": "function",
+      "name": "FromJSON",
+      "path": "graph/graph.go",
+      "metadata": {
+        "doc": "FromJSON deserializes JSON bytes into a Graph.",
+        "file": "graph.go",
+        "package": "graph",
+        "package_path": "github.com/cridiv/codelens/graph",
+        "signature": "func FromJSON(...)"
+      }
+    },
+    {
+      "id": "pkg:github.com/cridiv/codelens/analyzer",
+      "kind": "package",
+      "name": "analyzer",
+      "path": "analyzer",
+      "metadata": {
+        "import_path": "github.com/cridiv/codelens/analyzer",
+        "package": "analyzer"
+      }
+    },
+    {
+      "id": "file:analyzer/analyzer.go",
+      "kind": "file",
+      "name": "analyzer.go",
+      "path": "analyzer/analyzer.go",
+      "metadata": {
+        "package": "analyzer",
+        "package_path": "github.com/cridiv/codelens/analyzer"
+      }
+    },
+    {
+      "id": "type:github.com/cridiv/codelens/analyzer.Analyzer",
+      "kind": "interface",
+      "name": "Analyzer",
+      "path": "analyzer/analyzer.go",
+      "metadata": {
+        "doc": "Analyzer represents a language-agnostic static analyzer interface.",
+        "file": "analyzer.go",
+        "package": "analyzer",
+        "package_path": "github.com/cridiv/codelens/analyzer",
+        "signature": "type Analyzer interface"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/analyzer.Analyzer.Analyze",
+      "kind": "function",
+      "name": "Analyze",
+      "path": "analyzer/analyzer.go",
+      "metadata": {
+        "doc": "",
+        "file": "analyzer.go",
+        "package": "analyzer",
+        "package_path": "github.com/cridiv/codelens/analyzer",
+        "receiver": "Analyzer",
+        "signature": "Analyze(...)"
+      }
+    },
+    {
+      "id": "pkg:github.com/cridiv/codelens/analyzer/golang",
+      "kind": "package",
+      "name": "golang",
+      "path": "analyzer/golang",
+      "metadata": {
+        "import_path": "github.com/cridiv/codelens/analyzer/golang",
+        "package": "golang"
+      }
+    },
+    {
+      "id": "file:analyzer/golang/analyzer.go",
+      "kind": "file",
+      "name": "analyzer.go",
+      "path": "analyzer/golang/analyzer.go",
+      "metadata": {
+        "package": "golang",
+        "package_path": "github.com/cridiv/codelens/analyzer/golang"
+      }
+    },
+    {
+      "id": "type:github.com/cridiv/codelens/analyzer/golang.Analyzer",
+      "kind": "type",
+      "name": "Analyzer",
+      "path": "analyzer/golang/analyzer.go",
+      "metadata": {
+        "doc": "Analyzer implements static analysis for Go codebases.",
+        "file": "analyzer.go",
+        "package": "golang",
+        "package_path": "github.com/cridiv/codelens/analyzer/golang",
+        "signature": "type Analyzer struct"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/analyzer/golang.New",
+      "kind": "function",
+      "name": "New",
+      "path": "analyzer/golang/analyzer.go",
+      "metadata": {
+        "doc": "New creates a new Go static analyzer.",
+        "file": "analyzer.go",
+        "package": "golang",
+        "package_path": "github.com/cridiv/codelens/analyzer/golang",
+        "signature": "func New(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze",
+      "kind": "function",
+      "name": "Analyze",
+      "path": "analyzer/golang/analyzer.go",
+      "metadata": {
+        "doc": "Analyze statically inspects a Go repository at repoPath and returns an architectural Graph.",
+        "file": "analyzer.go",
+        "package": "golang",
+        "package_path": "github.com/cridiv/codelens/analyzer/golang",
+        "receiver": "Analyzer",
+        "signature": "func (Analyzer) Analyze(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractDecls",
+      "kind": "function",
+      "name": "extractDecls",
+      "path": "analyzer/golang/analyzer.go",
+      "metadata": {
+        "doc": "extractDecls walks top-level declarations in a file and adds type, interface,\nand function nodes along with their containment edges.",
+        "file": "analyzer.go",
+        "package": "golang",
+        "package_path": "github.com/cridiv/codelens/analyzer/golang",
+        "receiver": "Analyzer",
+        "signature": "func (Analyzer) extractDecls(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/analyzer/golang.receiverTypeName",
+      "kind": "function",
+      "name": "receiverTypeName",
+      "path": "analyzer/golang/analyzer.go",
+      "metadata": {
+        "doc": "receiverTypeName extracts the base type name from a receiver expression,\nhandling both value receivers (T) and pointer receivers (*T).",
+        "file": "analyzer.go",
+        "package": "golang",
+        "package_path": "github.com/cridiv/codelens/analyzer/golang",
+        "signature": "func receiverTypeName(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractCalls",
+      "kind": "function",
+      "name": "extractCalls",
+      "path": "analyzer/golang/analyzer.go",
+      "metadata": {
+        "doc": "extractCalls resolves function call expressions to their callee declarations\nusing the type checker info and emits directed \"calls\" edges.",
+        "file": "analyzer.go",
+        "package": "golang",
+        "package_path": "github.com/cridiv/codelens/analyzer/golang",
+        "receiver": "Analyzer",
+        "signature": "func (Analyzer) extractCalls(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/analyzer/golang.typeToNamed",
+      "kind": "function",
+      "name": "typeToNamed",
+      "path": "analyzer/golang/analyzer.go",
+      "metadata": {
+        "doc": "typeToNamed unwraps a pointer and returns the underlying named type's name,\nor the empty string if the type is not a named type.",
+        "file": "analyzer.go",
+        "package": "golang",
+        "package_path": "github.com/cridiv/codelens/analyzer/golang",
+        "signature": "func typeToNamed(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractImplementationsAndReferences",
+      "kind": "function",
+      "name": "extractImplementationsAndReferences",
+      "path": "analyzer/golang/analyzer.go",
+      "metadata": {
+        "doc": "extractImplementationsAndReferences emits \"implements\" edges (struct → interface)\nand \"references\" edges (struct → field type) for all local named types.",
+        "file": "analyzer.go",
+        "package": "golang",
+        "package_path": "github.com/cridiv/codelens/analyzer/golang",
+        "receiver": "Analyzer",
+        "signature": "func (Analyzer) extractImplementationsAndReferences(...)"
+      }
+    },
+    {
+      "id": "pkg:github.com/cridiv/codelens/llm",
+      "kind": "package",
+      "name": "llm",
+      "path": "llm",
+      "metadata": {
+        "import_path": "github.com/cridiv/codelens/llm",
+        "package": "llm"
+      }
+    },
+    {
+      "id": "file:llm/llm.go",
+      "kind": "file",
+      "name": "llm.go",
+      "path": "llm/llm.go",
+      "metadata": {
+        "package": "llm",
+        "package_path": "github.com/cridiv/codelens/llm"
+      }
+    },
+    {
+      "id": "type:github.com/cridiv/codelens/llm.LLMClient",
+      "kind": "interface",
+      "name": "LLMClient",
+      "path": "llm/llm.go",
+      "metadata": {
+        "doc": "LLMClient is the language-model abstraction used by the server.\nImplementations live in llm/ollama, llm/openai, and llm/anthropic.\n\nExplain generates a layered architectural explanation for a single node,\nusing the node's source code and its immediate subgraph as context.",
+        "file": "llm.go",
+        "package": "llm",
+        "package_path": "github.com/cridiv/codelens/llm",
+        "signature": "type LLMClient interface"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/llm.LLMClient.Explain",
+      "kind": "function",
+      "name": "Explain",
+      "path": "llm/llm.go",
+      "metadata": {
+        "doc": "",
+        "file": "llm.go",
+        "package": "llm",
+        "package_path": "github.com/cridiv/codelens/llm",
+        "receiver": "LLMClient",
+        "signature": "Explain(...)"
+      }
+    },
+    {
+      "id": "pkg:github.com/cridiv/codelens/llm/openai",
+      "kind": "package",
+      "name": "openai",
+      "path": "llm/openai",
+      "metadata": {
+        "import_path": "github.com/cridiv/codelens/llm/openai",
+        "package": "openai"
+      }
+    },
+    {
+      "id": "file:llm/openai/client.go",
+      "kind": "file",
+      "name": "client.go",
+      "path": "llm/openai/client.go",
+      "metadata": {
+        "package": "openai",
+        "package_path": "github.com/cridiv/codelens/llm/openai"
+      }
+    },
+    {
+      "id": "type:github.com/cridiv/codelens/llm/openai.Client",
+      "kind": "type",
+      "name": "Client",
+      "path": "llm/openai/client.go",
+      "metadata": {
+        "doc": "Client calls any OpenAI-compatible chat completions endpoint.",
+        "file": "client.go",
+        "package": "openai",
+        "package_path": "github.com/cridiv/codelens/llm/openai",
+        "signature": "type Client struct"
+      }
+    },
+    {
+      "id": "type:github.com/cridiv/codelens/llm/openai.Options",
+      "kind": "type",
+      "name": "Options",
+      "path": "llm/openai/client.go",
+      "metadata": {
+        "doc": "Options configures the OpenAI-compatible client.",
+        "file": "client.go",
+        "package": "openai",
+        "package_path": "github.com/cridiv/codelens/llm/openai",
+        "signature": "type Options struct"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/llm/openai.New",
+      "kind": "function",
+      "name": "New",
+      "path": "llm/openai/client.go",
+      "metadata": {
+        "doc": "New creates a new OpenAI-compatible LLM client.",
+        "file": "client.go",
+        "package": "openai",
+        "package_path": "github.com/cridiv/codelens/llm/openai",
+        "signature": "func New(...)"
+      }
+    },
+    {
+      "id": "type:github.com/cridiv/codelens/llm/openai.chatMessage",
+      "kind": "type",
+      "name": "chatMessage",
+      "path": "llm/openai/client.go",
+      "metadata": {
+        "doc": "",
+        "file": "client.go",
+        "package": "openai",
+        "package_path": "github.com/cridiv/codelens/llm/openai",
+        "signature": "type chatMessage struct"
+      }
+    },
+    {
+      "id": "type:github.com/cridiv/codelens/llm/openai.chatRequest",
+      "kind": "type",
+      "name": "chatRequest",
+      "path": "llm/openai/client.go",
+      "metadata": {
+        "doc": "",
+        "file": "client.go",
+        "package": "openai",
+        "package_path": "github.com/cridiv/codelens/llm/openai",
+        "signature": "type chatRequest struct"
+      }
+    },
+    {
+      "id": "type:github.com/cridiv/codelens/llm/openai.chatResponse",
+      "kind": "type",
+      "name": "chatResponse",
+      "path": "llm/openai/client.go",
+      "metadata": {
+        "doc": "",
+        "file": "client.go",
+        "package": "openai",
+        "package_path": "github.com/cridiv/codelens/llm/openai",
+        "signature": "type chatResponse struct"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/llm/openai.Client.Explain",
+      "kind": "function",
+      "name": "Explain",
+      "path": "llm/openai/client.go",
+      "metadata": {
+        "doc": "Explain generates a layered architectural explanation for the given node.",
+        "file": "client.go",
+        "package": "openai",
+        "package_path": "github.com/cridiv/codelens/llm/openai",
+        "receiver": "Client",
+        "signature": "func (Client) Explain(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/llm/openai.buildPrompt",
+      "kind": "function",
+      "name": "buildPrompt",
+      "path": "llm/openai/client.go",
+      "metadata": {
+        "doc": "",
+        "file": "client.go",
+        "package": "openai",
+        "package_path": "github.com/cridiv/codelens/llm/openai",
+        "signature": "func buildPrompt(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/llm/openai.nodeByID",
+      "kind": "function",
+      "name": "nodeByID",
+      "path": "llm/openai/client.go",
+      "metadata": {
+        "doc": "",
+        "file": "client.go",
+        "package": "openai",
+        "package_path": "github.com/cridiv/codelens/llm/openai",
+        "signature": "func nodeByID(...)"
+      }
+    },
+    {
+      "id": "pkg:github.com/cridiv/codelens/server",
+      "kind": "package",
+      "name": "server",
+      "path": "server",
+      "metadata": {
+        "import_path": "github.com/cridiv/codelens/server",
+        "package": "server"
+      }
+    },
+    {
+      "id": "file:server/handlers.go",
+      "kind": "file",
+      "name": "handlers.go",
+      "path": "server/handlers.go",
+      "metadata": {
+        "package": "server",
+        "package_path": "github.com/cridiv/codelens/server"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/server.writeJSON",
+      "kind": "function",
+      "name": "writeJSON",
+      "path": "server/handlers.go",
+      "metadata": {
+        "doc": "writeJSON encodes v as JSON and writes it to w with the given status code.",
+        "file": "handlers.go",
+        "package": "server",
+        "package_path": "github.com/cridiv/codelens/server",
+        "signature": "func writeJSON(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/server.writeError",
+      "kind": "function",
+      "name": "writeError",
+      "path": "server/handlers.go",
+      "metadata": {
+        "doc": "writeError writes a { \"error\": \"...\" } JSON body with the given status code.",
+        "file": "handlers.go",
+        "package": "server",
+        "package_path": "github.com/cridiv/codelens/server",
+        "signature": "func writeError(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/server.Server.handleGraph",
+      "kind": "function",
+      "name": "handleGraph",
+      "path": "server/handlers.go",
+      "metadata": {
+        "doc": "handleGraph returns the full graph as JSON.\n\n\tResponse: graph.Graph",
+        "file": "handlers.go",
+        "package": "server",
+        "package_path": "github.com/cridiv/codelens/server",
+        "receiver": "Server",
+        "signature": "func (Server) handleGraph(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/server.Server.handleNode",
+      "kind": "function",
+      "name": "handleNode",
+      "path": "server/handlers.go",
+      "metadata": {
+        "doc": "handleNode dispatches between single-node and neighbors requests based on\nwhether the path ends with \"/neighbors\".\n\n\tGET /api/node/:id           → graph.Node\n\tGET /api/node/:id/neighbors → { nodes: []Node, edges: []Edge }",
+        "file": "handlers.go",
+        "package": "server",
+        "package_path": "github.com/cridiv/codelens/server",
+        "receiver": "Server",
+        "signature": "func (Server) handleNode(...)"
+      }
+    },
+    {
+      "id": "type:github.com/cridiv/codelens/server.explainRequest",
+      "kind": "type",
+      "name": "explainRequest",
+      "path": "server/handlers.go",
+      "metadata": {
+        "doc": "explainRequest is the JSON body for the explain endpoint.",
+        "file": "handlers.go",
+        "package": "server",
+        "package_path": "github.com/cridiv/codelens/server",
+        "signature": "type explainRequest struct"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/server.Server.handleExplain",
+      "kind": "function",
+      "name": "handleExplain",
+      "path": "server/handlers.go",
+      "metadata": {
+        "doc": "handleExplain calls the LLM to generate an architectural explanation for a\nnode and returns the result as a JSON string.\n\n\tRequest:  { \"nodeId\": \"fn:github.com/cridiv/codelens/server.handleExplain\" }\n\tResponse: { \"explanation\": \"...\" }",
+        "file": "handlers.go",
+        "package": "server",
+        "package_path": "github.com/cridiv/codelens/server",
+        "receiver": "Server",
+        "signature": "func (Server) handleExplain(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/server.formatNodeAsSourceHint",
+      "kind": "function",
+      "name": "formatNodeAsSourceHint",
+      "path": "server/handlers.go",
+      "metadata": {
+        "doc": "formatNodeAsSourceHint produces a human-readable summary of a node's metadata\nto substitute for real source code until disk-reading is implemented.",
+        "file": "handlers.go",
+        "package": "server",
+        "package_path": "github.com/cridiv/codelens/server",
+        "signature": "func formatNodeAsSourceHint(...)"
+      }
+    },
+    {
+      "id": "file:server/server.go",
+      "kind": "file",
+      "name": "server.go",
+      "path": "server/server.go",
+      "metadata": {
+        "package": "server",
+        "package_path": "github.com/cridiv/codelens/server"
+      }
+    },
+    {
+      "id": "type:github.com/cridiv/codelens/server.Server",
+      "kind": "type",
+      "name": "Server",
+      "path": "server/server.go",
+      "metadata": {
+        "doc": "Server wraps an HTTP server with all its dependencies.",
+        "file": "server.go",
+        "package": "server",
+        "package_path": "github.com/cridiv/codelens/server",
+        "signature": "type Server struct"
+      }
+    },
+    {
+      "id": "type:github.com/cridiv/codelens/server.Options",
+      "kind": "type",
+      "name": "Options",
+      "path": "server/server.go",
+      "metadata": {
+        "doc": "Options configures a Server instance.",
+        "file": "server.go",
+        "package": "server",
+        "package_path": "github.com/cridiv/codelens/server",
+        "signature": "type Options struct"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/server.New",
+      "kind": "function",
+      "name": "New",
+      "path": "server/server.go",
+      "metadata": {
+        "doc": "New creates a configured Server and registers all routes.",
+        "file": "server.go",
+        "package": "server",
+        "package_path": "github.com/cridiv/codelens/server",
+        "signature": "func New(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/server.Server.ServeHTTP",
+      "kind": "function",
+      "name": "ServeHTTP",
+      "path": "server/server.go",
+      "metadata": {
+        "doc": "ServeHTTP implements http.Handler, allowing the Server to be used directly\nin tests with httptest.NewRecorder without binding to a real port.",
+        "file": "server.go",
+        "package": "server",
+        "package_path": "github.com/cridiv/codelens/server",
+        "receiver": "Server",
+        "signature": "func (Server) ServeHTTP(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/server.Server.Start",
+      "kind": "function",
+      "name": "Start",
+      "path": "server/server.go",
+      "metadata": {
+        "doc": "Start begins listening. It blocks until the context is cancelled.",
+        "file": "server.go",
+        "package": "server",
+        "package_path": "github.com/cridiv/codelens/server",
+        "receiver": "Server",
+        "signature": "func (Server) Start(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/server.loggingMiddleware",
+      "kind": "function",
+      "name": "loggingMiddleware",
+      "path": "server/server.go",
+      "metadata": {
+        "doc": "loggingMiddleware logs every request when verbose is true.",
+        "file": "server.go",
+        "package": "server",
+        "package_path": "github.com/cridiv/codelens/server",
+        "signature": "func loggingMiddleware(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/server.corsMiddleware",
+      "kind": "function",
+      "name": "corsMiddleware",
+      "path": "server/server.go",
+      "metadata": {
+        "doc": "corsMiddleware adds permissive CORS headers for local development.\nThe UI dev server runs on a different port from the Go server, so these\nare required during development. In production the Go server also serves\nthe UI, making CORS irrelevant, but the headers are harmless.",
+        "file": "server.go",
+        "package": "server",
+        "package_path": "github.com/cridiv/codelens/server",
+        "signature": "func corsMiddleware(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/server.spaHandler",
+      "kind": "function",
+      "name": "spaHandler",
+      "path": "server/server.go",
+      "metadata": {
+        "doc": "spaHandler wraps a file server to support single-page applications.\nIf the requested path doesn't correspond to an existing file, it serves\nindex.html so that client-side routing can take over.",
+        "file": "server.go",
+        "package": "server",
+        "package_path": "github.com/cridiv/codelens/server",
+        "signature": "func spaHandler(...)"
+      }
+    },
+    {
+      "id": "pkg:github.com/cridiv/codelens/cmd/codeatlas",
+      "kind": "package",
+      "name": "main",
+      "path": "cmd/codeatlas",
+      "metadata": {
+        "import_path": "github.com/cridiv/codelens/cmd/codeatlas",
+        "package": "main"
+      }
+    },
+    {
+      "id": "file:cmd/codeatlas/browser.go",
+      "kind": "file",
+      "name": "browser.go",
+      "path": "cmd/codeatlas/browser.go",
+      "metadata": {
+        "package": "main",
+        "package_path": "github.com/cridiv/codelens/cmd/codeatlas"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/cmd/codeatlas.openBrowser",
+      "kind": "function",
+      "name": "openBrowser",
+      "path": "cmd/codeatlas/browser.go",
+      "metadata": {
+        "doc": "openBrowser launches the default browser at url.\nFailures are non-fatal — the user can always open the URL manually.",
+        "file": "browser.go",
+        "package": "main",
+        "package_path": "github.com/cridiv/codelens/cmd/codeatlas",
+        "signature": "func openBrowser(...)"
+      }
+    },
+    {
+      "id": "file:cmd/codeatlas/main.go",
+      "kind": "file",
+      "name": "main.go",
+      "path": "cmd/codeatlas/main.go",
+      "metadata": {
+        "package": "main",
+        "package_path": "github.com/cridiv/codelens/cmd/codeatlas"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/cmd/codeatlas.main",
+      "kind": "function",
+      "name": "main",
+      "path": "cmd/codeatlas/main.go",
+      "metadata": {
+        "doc": "",
+        "file": "main.go",
+        "package": "main",
+        "package_path": "github.com/cridiv/codelens/cmd/codeatlas",
+        "signature": "func main(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/cmd/codeatlas.buildLLMClient",
+      "kind": "function",
+      "name": "buildLLMClient",
+      "path": "cmd/codeatlas/main.go",
+      "metadata": {
+        "doc": "buildLLMClient selects and constructs an LLM client based on the provider flag.",
+        "file": "main.go",
+        "package": "main",
+        "package_path": "github.com/cridiv/codelens/cmd/codeatlas",
+        "signature": "func buildLLMClient(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/cmd/codeatlas.loadGraph",
+      "kind": "function",
+      "name": "loadGraph",
+      "path": "cmd/codeatlas/main.go",
+      "metadata": {
+        "doc": "loadGraph either reads a valid cache or re-runs the analyzer.",
+        "file": "main.go",
+        "package": "main",
+        "package_path": "github.com/cridiv/codelens/cmd/codeatlas",
+        "signature": "func loadGraph(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/cmd/codeatlas.tryReadCache",
+      "kind": "function",
+      "name": "tryReadCache",
+      "path": "cmd/codeatlas/main.go",
+      "metadata": {
+        "doc": "tryReadCache returns the cached graph if the cache file is newer than any\n.go source file in the repo. Returns (nil, false) on any miss or error.",
+        "file": "main.go",
+        "package": "main",
+        "package_path": "github.com/cridiv/codelens/cmd/codeatlas",
+        "signature": "func tryReadCache(...)"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/cmd/codeatlas.writeCache",
+      "kind": "function",
+      "name": "writeCache",
+      "path": "cmd/codeatlas/main.go",
+      "metadata": {
+        "doc": "writeCache serialises the graph to the cache file, creating parent dirs.",
+        "file": "main.go",
+        "package": "main",
+        "package_path": "github.com/cridiv/codelens/cmd/codeatlas",
+        "signature": "func writeCache(...)"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-pkg:github.com/cridiv/codelens-file:uiembed.go-contains",
+      "from": "pkg:github.com/cridiv/codelens",
+      "to": "file:uiembed.go",
+      "kind": "contains"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/graph-file:graph/graph.go-contains",
+      "from": "pkg:github.com/cridiv/codelens/graph",
+      "to": "file:graph/graph.go",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:graph/graph.go-type:github.com/cridiv/codelens/graph.Node-contains",
+      "from": "file:graph/graph.go",
+      "to": "type:github.com/cridiv/codelens/graph.Node",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:graph/graph.go-type:github.com/cridiv/codelens/graph.Edge-contains",
+      "from": "file:graph/graph.go",
+      "to": "type:github.com/cridiv/codelens/graph.Edge",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:graph/graph.go-type:github.com/cridiv/codelens/graph.Graph-contains",
+      "from": "file:graph/graph.go",
+      "to": "type:github.com/cridiv/codelens/graph.Graph",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:graph/graph.go-fn:github.com/cridiv/codelens/graph.New-contains",
+      "from": "file:graph/graph.go",
+      "to": "fn:github.com/cridiv/codelens/graph.New",
+      "kind": "contains"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/graph.Graph-fn:github.com/cridiv/codelens/graph.Graph.AddNode-contains",
+      "from": "type:github.com/cridiv/codelens/graph.Graph",
+      "to": "fn:github.com/cridiv/codelens/graph.Graph.AddNode",
+      "kind": "contains"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/graph.Graph-fn:github.com/cridiv/codelens/graph.Graph.AddEdge-contains",
+      "from": "type:github.com/cridiv/codelens/graph.Graph",
+      "to": "fn:github.com/cridiv/codelens/graph.Graph.AddEdge",
+      "kind": "contains"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/graph.Graph-fn:github.com/cridiv/codelens/graph.Graph.NodeByID-contains",
+      "from": "type:github.com/cridiv/codelens/graph.Graph",
+      "to": "fn:github.com/cridiv/codelens/graph.Graph.NodeByID",
+      "kind": "contains"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/graph.Graph-fn:github.com/cridiv/codelens/graph.Graph.NeighborsOf-contains",
+      "from": "type:github.com/cridiv/codelens/graph.Graph",
+      "to": "fn:github.com/cridiv/codelens/graph.Graph.NeighborsOf",
+      "kind": "contains"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/graph.Graph-fn:github.com/cridiv/codelens/graph.Graph.NodesByFile-contains",
+      "from": "type:github.com/cridiv/codelens/graph.Graph",
+      "to": "fn:github.com/cridiv/codelens/graph.Graph.NodesByFile",
+      "kind": "contains"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/graph.Graph-fn:github.com/cridiv/codelens/graph.Graph.NodesByPackage-contains",
+      "from": "type:github.com/cridiv/codelens/graph.Graph",
+      "to": "fn:github.com/cridiv/codelens/graph.Graph.NodesByPackage",
+      "kind": "contains"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/graph.Graph-fn:github.com/cridiv/codelens/graph.Graph.ToJSON-contains",
+      "from": "type:github.com/cridiv/codelens/graph.Graph",
+      "to": "fn:github.com/cridiv/codelens/graph.Graph.ToJSON",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:graph/graph.go-fn:github.com/cridiv/codelens/graph.FromJSON-contains",
+      "from": "file:graph/graph.go",
+      "to": "fn:github.com/cridiv/codelens/graph.FromJSON",
+      "kind": "contains"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/analyzer-pkg:github.com/cridiv/codelens/graph-imports",
+      "from": "pkg:github.com/cridiv/codelens/analyzer",
+      "to": "pkg:github.com/cridiv/codelens/graph",
+      "kind": "imports"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/analyzer-file:analyzer/analyzer.go-contains",
+      "from": "pkg:github.com/cridiv/codelens/analyzer",
+      "to": "file:analyzer/analyzer.go",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:analyzer/analyzer.go-type:github.com/cridiv/codelens/analyzer.Analyzer-contains",
+      "from": "file:analyzer/analyzer.go",
+      "to": "type:github.com/cridiv/codelens/analyzer.Analyzer",
+      "kind": "contains"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/analyzer.Analyzer-fn:github.com/cridiv/codelens/analyzer.Analyzer.Analyze-contains",
+      "from": "type:github.com/cridiv/codelens/analyzer.Analyzer",
+      "to": "fn:github.com/cridiv/codelens/analyzer.Analyzer.Analyze",
+      "kind": "contains"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/analyzer/golang-pkg:github.com/cridiv/codelens/analyzer-imports",
+      "from": "pkg:github.com/cridiv/codelens/analyzer/golang",
+      "to": "pkg:github.com/cridiv/codelens/analyzer",
+      "kind": "imports"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/analyzer/golang-pkg:github.com/cridiv/codelens/graph-imports",
+      "from": "pkg:github.com/cridiv/codelens/analyzer/golang",
+      "to": "pkg:github.com/cridiv/codelens/graph",
+      "kind": "imports"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/analyzer/golang-file:analyzer/golang/analyzer.go-contains",
+      "from": "pkg:github.com/cridiv/codelens/analyzer/golang",
+      "to": "file:analyzer/golang/analyzer.go",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:analyzer/golang/analyzer.go-type:github.com/cridiv/codelens/analyzer/golang.Analyzer-contains",
+      "from": "file:analyzer/golang/analyzer.go",
+      "to": "type:github.com/cridiv/codelens/analyzer/golang.Analyzer",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:analyzer/golang/analyzer.go-fn:github.com/cridiv/codelens/analyzer/golang.New-contains",
+      "from": "file:analyzer/golang/analyzer.go",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.New",
+      "kind": "contains"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/analyzer/golang.Analyzer-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze-contains",
+      "from": "type:github.com/cridiv/codelens/analyzer/golang.Analyzer",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze",
+      "kind": "contains"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/analyzer/golang.Analyzer-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractDecls-contains",
+      "from": "type:github.com/cridiv/codelens/analyzer/golang.Analyzer",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractDecls",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:analyzer/golang/analyzer.go-fn:github.com/cridiv/codelens/analyzer/golang.receiverTypeName-contains",
+      "from": "file:analyzer/golang/analyzer.go",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.receiverTypeName",
+      "kind": "contains"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/analyzer/golang.Analyzer-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractCalls-contains",
+      "from": "type:github.com/cridiv/codelens/analyzer/golang.Analyzer",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractCalls",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:analyzer/golang/analyzer.go-fn:github.com/cridiv/codelens/analyzer/golang.typeToNamed-contains",
+      "from": "file:analyzer/golang/analyzer.go",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.typeToNamed",
+      "kind": "contains"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/analyzer/golang.Analyzer-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractImplementationsAndReferences-contains",
+      "from": "type:github.com/cridiv/codelens/analyzer/golang.Analyzer",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractImplementationsAndReferences",
+      "kind": "contains"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/llm-pkg:github.com/cridiv/codelens/graph-imports",
+      "from": "pkg:github.com/cridiv/codelens/llm",
+      "to": "pkg:github.com/cridiv/codelens/graph",
+      "kind": "imports"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/llm-file:llm/llm.go-contains",
+      "from": "pkg:github.com/cridiv/codelens/llm",
+      "to": "file:llm/llm.go",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:llm/llm.go-type:github.com/cridiv/codelens/llm.LLMClient-contains",
+      "from": "file:llm/llm.go",
+      "to": "type:github.com/cridiv/codelens/llm.LLMClient",
+      "kind": "contains"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/llm.LLMClient-fn:github.com/cridiv/codelens/llm.LLMClient.Explain-contains",
+      "from": "type:github.com/cridiv/codelens/llm.LLMClient",
+      "to": "fn:github.com/cridiv/codelens/llm.LLMClient.Explain",
+      "kind": "contains"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/llm/openai-pkg:github.com/cridiv/codelens/llm-imports",
+      "from": "pkg:github.com/cridiv/codelens/llm/openai",
+      "to": "pkg:github.com/cridiv/codelens/llm",
+      "kind": "imports"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/llm/openai-pkg:github.com/cridiv/codelens/graph-imports",
+      "from": "pkg:github.com/cridiv/codelens/llm/openai",
+      "to": "pkg:github.com/cridiv/codelens/graph",
+      "kind": "imports"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/llm/openai-file:llm/openai/client.go-contains",
+      "from": "pkg:github.com/cridiv/codelens/llm/openai",
+      "to": "file:llm/openai/client.go",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:llm/openai/client.go-type:github.com/cridiv/codelens/llm/openai.Client-contains",
+      "from": "file:llm/openai/client.go",
+      "to": "type:github.com/cridiv/codelens/llm/openai.Client",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:llm/openai/client.go-type:github.com/cridiv/codelens/llm/openai.Options-contains",
+      "from": "file:llm/openai/client.go",
+      "to": "type:github.com/cridiv/codelens/llm/openai.Options",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:llm/openai/client.go-fn:github.com/cridiv/codelens/llm/openai.New-contains",
+      "from": "file:llm/openai/client.go",
+      "to": "fn:github.com/cridiv/codelens/llm/openai.New",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:llm/openai/client.go-type:github.com/cridiv/codelens/llm/openai.chatMessage-contains",
+      "from": "file:llm/openai/client.go",
+      "to": "type:github.com/cridiv/codelens/llm/openai.chatMessage",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:llm/openai/client.go-type:github.com/cridiv/codelens/llm/openai.chatRequest-contains",
+      "from": "file:llm/openai/client.go",
+      "to": "type:github.com/cridiv/codelens/llm/openai.chatRequest",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:llm/openai/client.go-type:github.com/cridiv/codelens/llm/openai.chatResponse-contains",
+      "from": "file:llm/openai/client.go",
+      "to": "type:github.com/cridiv/codelens/llm/openai.chatResponse",
+      "kind": "contains"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/llm/openai.Client-fn:github.com/cridiv/codelens/llm/openai.Client.Explain-contains",
+      "from": "type:github.com/cridiv/codelens/llm/openai.Client",
+      "to": "fn:github.com/cridiv/codelens/llm/openai.Client.Explain",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:llm/openai/client.go-fn:github.com/cridiv/codelens/llm/openai.buildPrompt-contains",
+      "from": "file:llm/openai/client.go",
+      "to": "fn:github.com/cridiv/codelens/llm/openai.buildPrompt",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:llm/openai/client.go-fn:github.com/cridiv/codelens/llm/openai.nodeByID-contains",
+      "from": "file:llm/openai/client.go",
+      "to": "fn:github.com/cridiv/codelens/llm/openai.nodeByID",
+      "kind": "contains"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/server-pkg:github.com/cridiv/codelens/graph-imports",
+      "from": "pkg:github.com/cridiv/codelens/server",
+      "to": "pkg:github.com/cridiv/codelens/graph",
+      "kind": "imports"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/server-pkg:github.com/cridiv/codelens/llm-imports",
+      "from": "pkg:github.com/cridiv/codelens/server",
+      "to": "pkg:github.com/cridiv/codelens/llm",
+      "kind": "imports"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/server-file:server/handlers.go-contains",
+      "from": "pkg:github.com/cridiv/codelens/server",
+      "to": "file:server/handlers.go",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:server/handlers.go-fn:github.com/cridiv/codelens/server.writeJSON-contains",
+      "from": "file:server/handlers.go",
+      "to": "fn:github.com/cridiv/codelens/server.writeJSON",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:server/handlers.go-fn:github.com/cridiv/codelens/server.writeError-contains",
+      "from": "file:server/handlers.go",
+      "to": "fn:github.com/cridiv/codelens/server.writeError",
+      "kind": "contains"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/server.Server-fn:github.com/cridiv/codelens/server.Server.handleGraph-contains",
+      "from": "type:github.com/cridiv/codelens/server.Server",
+      "to": "fn:github.com/cridiv/codelens/server.Server.handleGraph",
+      "kind": "contains"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/server.Server-fn:github.com/cridiv/codelens/server.Server.handleNode-contains",
+      "from": "type:github.com/cridiv/codelens/server.Server",
+      "to": "fn:github.com/cridiv/codelens/server.Server.handleNode",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:server/handlers.go-type:github.com/cridiv/codelens/server.explainRequest-contains",
+      "from": "file:server/handlers.go",
+      "to": "type:github.com/cridiv/codelens/server.explainRequest",
+      "kind": "contains"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/server.Server-fn:github.com/cridiv/codelens/server.Server.handleExplain-contains",
+      "from": "type:github.com/cridiv/codelens/server.Server",
+      "to": "fn:github.com/cridiv/codelens/server.Server.handleExplain",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:server/handlers.go-fn:github.com/cridiv/codelens/server.formatNodeAsSourceHint-contains",
+      "from": "file:server/handlers.go",
+      "to": "fn:github.com/cridiv/codelens/server.formatNodeAsSourceHint",
+      "kind": "contains"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/server-file:server/server.go-contains",
+      "from": "pkg:github.com/cridiv/codelens/server",
+      "to": "file:server/server.go",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:server/server.go-type:github.com/cridiv/codelens/server.Server-contains",
+      "from": "file:server/server.go",
+      "to": "type:github.com/cridiv/codelens/server.Server",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:server/server.go-type:github.com/cridiv/codelens/server.Options-contains",
+      "from": "file:server/server.go",
+      "to": "type:github.com/cridiv/codelens/server.Options",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:server/server.go-fn:github.com/cridiv/codelens/server.New-contains",
+      "from": "file:server/server.go",
+      "to": "fn:github.com/cridiv/codelens/server.New",
+      "kind": "contains"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/server.Server-fn:github.com/cridiv/codelens/server.Server.ServeHTTP-contains",
+      "from": "type:github.com/cridiv/codelens/server.Server",
+      "to": "fn:github.com/cridiv/codelens/server.Server.ServeHTTP",
+      "kind": "contains"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/server.Server-fn:github.com/cridiv/codelens/server.Server.Start-contains",
+      "from": "type:github.com/cridiv/codelens/server.Server",
+      "to": "fn:github.com/cridiv/codelens/server.Server.Start",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:server/server.go-fn:github.com/cridiv/codelens/server.loggingMiddleware-contains",
+      "from": "file:server/server.go",
+      "to": "fn:github.com/cridiv/codelens/server.loggingMiddleware",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:server/server.go-fn:github.com/cridiv/codelens/server.corsMiddleware-contains",
+      "from": "file:server/server.go",
+      "to": "fn:github.com/cridiv/codelens/server.corsMiddleware",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:server/server.go-fn:github.com/cridiv/codelens/server.spaHandler-contains",
+      "from": "file:server/server.go",
+      "to": "fn:github.com/cridiv/codelens/server.spaHandler",
+      "kind": "contains"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/cmd/codeatlas-pkg:github.com/cridiv/codelens/analyzer/golang-imports",
+      "from": "pkg:github.com/cridiv/codelens/cmd/codeatlas",
+      "to": "pkg:github.com/cridiv/codelens/analyzer/golang",
+      "kind": "imports"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/cmd/codeatlas-pkg:github.com/cridiv/codelens/llm/openai-imports",
+      "from": "pkg:github.com/cridiv/codelens/cmd/codeatlas",
+      "to": "pkg:github.com/cridiv/codelens/llm/openai",
+      "kind": "imports"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/cmd/codeatlas-pkg:github.com/cridiv/codelens/server-imports",
+      "from": "pkg:github.com/cridiv/codelens/cmd/codeatlas",
+      "to": "pkg:github.com/cridiv/codelens/server",
+      "kind": "imports"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/cmd/codeatlas-pkg:github.com/cridiv/codelens/graph-imports",
+      "from": "pkg:github.com/cridiv/codelens/cmd/codeatlas",
+      "to": "pkg:github.com/cridiv/codelens/graph",
+      "kind": "imports"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/cmd/codeatlas-pkg:github.com/cridiv/codelens-imports",
+      "from": "pkg:github.com/cridiv/codelens/cmd/codeatlas",
+      "to": "pkg:github.com/cridiv/codelens",
+      "kind": "imports"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/cmd/codeatlas-file:cmd/codeatlas/browser.go-contains",
+      "from": "pkg:github.com/cridiv/codelens/cmd/codeatlas",
+      "to": "file:cmd/codeatlas/browser.go",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:cmd/codeatlas/browser.go-fn:github.com/cridiv/codelens/cmd/codeatlas.openBrowser-contains",
+      "from": "file:cmd/codeatlas/browser.go",
+      "to": "fn:github.com/cridiv/codelens/cmd/codeatlas.openBrowser",
+      "kind": "contains"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/cmd/codeatlas-file:cmd/codeatlas/main.go-contains",
+      "from": "pkg:github.com/cridiv/codelens/cmd/codeatlas",
+      "to": "file:cmd/codeatlas/main.go",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:cmd/codeatlas/main.go-fn:github.com/cridiv/codelens/cmd/codeatlas.main-contains",
+      "from": "file:cmd/codeatlas/main.go",
+      "to": "fn:github.com/cridiv/codelens/cmd/codeatlas.main",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:cmd/codeatlas/main.go-fn:github.com/cridiv/codelens/cmd/codeatlas.buildLLMClient-contains",
+      "from": "file:cmd/codeatlas/main.go",
+      "to": "fn:github.com/cridiv/codelens/cmd/codeatlas.buildLLMClient",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:cmd/codeatlas/main.go-fn:github.com/cridiv/codelens/cmd/codeatlas.loadGraph-contains",
+      "from": "file:cmd/codeatlas/main.go",
+      "to": "fn:github.com/cridiv/codelens/cmd/codeatlas.loadGraph",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:cmd/codeatlas/main.go-fn:github.com/cridiv/codelens/cmd/codeatlas.tryReadCache-contains",
+      "from": "file:cmd/codeatlas/main.go",
+      "to": "fn:github.com/cridiv/codelens/cmd/codeatlas.tryReadCache",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:cmd/codeatlas/main.go-fn:github.com/cridiv/codelens/cmd/codeatlas.writeCache-contains",
+      "from": "file:cmd/codeatlas/main.go",
+      "to": "fn:github.com/cridiv/codelens/cmd/codeatlas.writeCache",
+      "kind": "contains"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/graph.Graph.NeighborsOf-fn:github.com/cridiv/codelens/graph.Graph.NodeByID-calls",
+      "from": "fn:github.com/cridiv/codelens/graph.Graph.NeighborsOf",
+      "to": "fn:github.com/cridiv/codelens/graph.Graph.NodeByID",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze-fn:github.com/cridiv/codelens/graph.New-calls",
+      "from": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze",
+      "to": "fn:github.com/cridiv/codelens/graph.New",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze-fn:github.com/cridiv/codelens/graph.Graph.AddNode-calls",
+      "from": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze",
+      "to": "fn:github.com/cridiv/codelens/graph.Graph.AddNode",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze-fn:github.com/cridiv/codelens/graph.Graph.AddEdge-calls",
+      "from": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze",
+      "to": "fn:github.com/cridiv/codelens/graph.Graph.AddEdge",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractDecls-calls",
+      "from": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractDecls",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractCalls-calls",
+      "from": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractCalls",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractImplementationsAndReferences-calls",
+      "from": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractImplementationsAndReferences",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractDecls-fn:github.com/cridiv/codelens/graph.Graph.AddNode-calls",
+      "from": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractDecls",
+      "to": "fn:github.com/cridiv/codelens/graph.Graph.AddNode",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractDecls-fn:github.com/cridiv/codelens/graph.Graph.AddEdge-calls",
+      "from": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractDecls",
+      "to": "fn:github.com/cridiv/codelens/graph.Graph.AddEdge",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractDecls-fn:github.com/cridiv/codelens/analyzer/golang.receiverTypeName-calls",
+      "from": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractDecls",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.receiverTypeName",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractCalls-fn:github.com/cridiv/codelens/analyzer/golang.receiverTypeName-calls",
+      "from": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractCalls",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.receiverTypeName",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractCalls-fn:github.com/cridiv/codelens/analyzer/golang.typeToNamed-calls",
+      "from": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractCalls",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.typeToNamed",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractCalls-fn:github.com/cridiv/codelens/graph.Graph.AddEdge-calls",
+      "from": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractCalls",
+      "to": "fn:github.com/cridiv/codelens/graph.Graph.AddEdge",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractImplementationsAndReferences-fn:github.com/cridiv/codelens/graph.Graph.AddEdge-calls",
+      "from": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractImplementationsAndReferences",
+      "to": "fn:github.com/cridiv/codelens/graph.Graph.AddEdge",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/llm/openai.Client.Explain-fn:github.com/cridiv/codelens/llm/openai.buildPrompt-calls",
+      "from": "fn:github.com/cridiv/codelens/llm/openai.Client.Explain",
+      "to": "fn:github.com/cridiv/codelens/llm/openai.buildPrompt",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/llm/openai.buildPrompt-fn:github.com/cridiv/codelens/llm/openai.nodeByID-calls",
+      "from": "fn:github.com/cridiv/codelens/llm/openai.buildPrompt",
+      "to": "fn:github.com/cridiv/codelens/llm/openai.nodeByID",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/server.writeError-fn:github.com/cridiv/codelens/server.writeJSON-calls",
+      "from": "fn:github.com/cridiv/codelens/server.writeError",
+      "to": "fn:github.com/cridiv/codelens/server.writeJSON",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/server.Server.handleGraph-fn:github.com/cridiv/codelens/server.writeError-calls",
+      "from": "fn:github.com/cridiv/codelens/server.Server.handleGraph",
+      "to": "fn:github.com/cridiv/codelens/server.writeError",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/server.Server.handleGraph-fn:github.com/cridiv/codelens/server.writeJSON-calls",
+      "from": "fn:github.com/cridiv/codelens/server.Server.handleGraph",
+      "to": "fn:github.com/cridiv/codelens/server.writeJSON",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/server.Server.handleNode-fn:github.com/cridiv/codelens/server.writeError-calls",
+      "from": "fn:github.com/cridiv/codelens/server.Server.handleNode",
+      "to": "fn:github.com/cridiv/codelens/server.writeError",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/server.Server.handleNode-fn:github.com/cridiv/codelens/graph.Graph.NodeByID-calls",
+      "from": "fn:github.com/cridiv/codelens/server.Server.handleNode",
+      "to": "fn:github.com/cridiv/codelens/graph.Graph.NodeByID",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/server.Server.handleNode-fn:github.com/cridiv/codelens/server.writeJSON-calls",
+      "from": "fn:github.com/cridiv/codelens/server.Server.handleNode",
+      "to": "fn:github.com/cridiv/codelens/server.writeJSON",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/server.Server.handleNode-fn:github.com/cridiv/codelens/graph.Graph.NeighborsOf-calls",
+      "from": "fn:github.com/cridiv/codelens/server.Server.handleNode",
+      "to": "fn:github.com/cridiv/codelens/graph.Graph.NeighborsOf",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/server.Server.handleExplain-fn:github.com/cridiv/codelens/server.writeError-calls",
+      "from": "fn:github.com/cridiv/codelens/server.Server.handleExplain",
+      "to": "fn:github.com/cridiv/codelens/server.writeError",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/server.Server.handleExplain-fn:github.com/cridiv/codelens/graph.Graph.NodeByID-calls",
+      "from": "fn:github.com/cridiv/codelens/server.Server.handleExplain",
+      "to": "fn:github.com/cridiv/codelens/graph.Graph.NodeByID",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/server.Server.handleExplain-fn:github.com/cridiv/codelens/graph.Graph.NeighborsOf-calls",
+      "from": "fn:github.com/cridiv/codelens/server.Server.handleExplain",
+      "to": "fn:github.com/cridiv/codelens/graph.Graph.NeighborsOf",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/server.Server.handleExplain-fn:github.com/cridiv/codelens/server.formatNodeAsSourceHint-calls",
+      "from": "fn:github.com/cridiv/codelens/server.Server.handleExplain",
+      "to": "fn:github.com/cridiv/codelens/server.formatNodeAsSourceHint",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/server.Server.handleExplain-fn:github.com/cridiv/codelens/llm.LLMClient.Explain-calls",
+      "from": "fn:github.com/cridiv/codelens/server.Server.handleExplain",
+      "to": "fn:github.com/cridiv/codelens/llm.LLMClient.Explain",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/server.Server.handleExplain-fn:github.com/cridiv/codelens/server.writeJSON-calls",
+      "from": "fn:github.com/cridiv/codelens/server.Server.handleExplain",
+      "to": "fn:github.com/cridiv/codelens/server.writeJSON",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/server.New-fn:github.com/cridiv/codelens/server.spaHandler-calls",
+      "from": "fn:github.com/cridiv/codelens/server.New",
+      "to": "fn:github.com/cridiv/codelens/server.spaHandler",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/server.New-fn:github.com/cridiv/codelens/server.loggingMiddleware-calls",
+      "from": "fn:github.com/cridiv/codelens/server.New",
+      "to": "fn:github.com/cridiv/codelens/server.loggingMiddleware",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/server.New-fn:github.com/cridiv/codelens/server.corsMiddleware-calls",
+      "from": "fn:github.com/cridiv/codelens/server.New",
+      "to": "fn:github.com/cridiv/codelens/server.corsMiddleware",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/cmd/codeatlas.main-fn:github.com/cridiv/codelens/cmd/codeatlas.loadGraph-calls",
+      "from": "fn:github.com/cridiv/codelens/cmd/codeatlas.main",
+      "to": "fn:github.com/cridiv/codelens/cmd/codeatlas.loadGraph",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/cmd/codeatlas.main-fn:github.com/cridiv/codelens/cmd/codeatlas.buildLLMClient-calls",
+      "from": "fn:github.com/cridiv/codelens/cmd/codeatlas.main",
+      "to": "fn:github.com/cridiv/codelens/cmd/codeatlas.buildLLMClient",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/cmd/codeatlas.main-fn:github.com/cridiv/codelens/server.New-calls",
+      "from": "fn:github.com/cridiv/codelens/cmd/codeatlas.main",
+      "to": "fn:github.com/cridiv/codelens/server.New",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/cmd/codeatlas.main-fn:github.com/cridiv/codelens/cmd/codeatlas.openBrowser-calls",
+      "from": "fn:github.com/cridiv/codelens/cmd/codeatlas.main",
+      "to": "fn:github.com/cridiv/codelens/cmd/codeatlas.openBrowser",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/cmd/codeatlas.main-fn:github.com/cridiv/codelens/server.Server.Start-calls",
+      "from": "fn:github.com/cridiv/codelens/cmd/codeatlas.main",
+      "to": "fn:github.com/cridiv/codelens/server.Server.Start",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/cmd/codeatlas.buildLLMClient-fn:github.com/cridiv/codelens/llm/openai.New-calls",
+      "from": "fn:github.com/cridiv/codelens/cmd/codeatlas.buildLLMClient",
+      "to": "fn:github.com/cridiv/codelens/llm/openai.New",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/cmd/codeatlas.loadGraph-fn:github.com/cridiv/codelens/cmd/codeatlas.tryReadCache-calls",
+      "from": "fn:github.com/cridiv/codelens/cmd/codeatlas.loadGraph",
+      "to": "fn:github.com/cridiv/codelens/cmd/codeatlas.tryReadCache",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/cmd/codeatlas.loadGraph-fn:github.com/cridiv/codelens/analyzer/golang.New-calls",
+      "from": "fn:github.com/cridiv/codelens/cmd/codeatlas.loadGraph",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.New",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/cmd/codeatlas.loadGraph-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze-calls",
+      "from": "fn:github.com/cridiv/codelens/cmd/codeatlas.loadGraph",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/cmd/codeatlas.loadGraph-fn:github.com/cridiv/codelens/cmd/codeatlas.writeCache-calls",
+      "from": "fn:github.com/cridiv/codelens/cmd/codeatlas.loadGraph",
+      "to": "fn:github.com/cridiv/codelens/cmd/codeatlas.writeCache",
+      "kind": "calls"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/analyzer/golang.Analyzer-type:github.com/cridiv/codelens/analyzer.Analyzer-implements",
+      "from": "type:github.com/cridiv/codelens/analyzer/golang.Analyzer",
+      "to": "type:github.com/cridiv/codelens/analyzer.Analyzer",
+      "kind": "implements",
+      "metadata": {
+        "label": "Analyzer implements Analyzer"
+      }
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/llm/openai.Client-type:github.com/cridiv/codelens/llm.LLMClient-implements",
+      "from": "type:github.com/cridiv/codelens/llm/openai.Client",
+      "to": "type:github.com/cridiv/codelens/llm.LLMClient",
+      "kind": "implements",
+      "metadata": {
+        "label": "Client implements LLMClient"
+      }
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/server.Options-type:github.com/cridiv/codelens/graph.Graph-references",
+      "from": "type:github.com/cridiv/codelens/server.Options",
+      "to": "type:github.com/cridiv/codelens/graph.Graph",
+      "kind": "references",
+      "metadata": {
+        "label": "field Graph"
+      }
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/server.Options-type:github.com/cridiv/codelens/llm.LLMClient-references",
+      "from": "type:github.com/cridiv/codelens/server.Options",
+      "to": "type:github.com/cridiv/codelens/llm.LLMClient",
+      "kind": "references",
+      "metadata": {
+        "label": "field LLM"
+      }
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/server.Server-type:github.com/cridiv/codelens/graph.Graph-references",
+      "from": "type:github.com/cridiv/codelens/server.Server",
+      "to": "type:github.com/cridiv/codelens/graph.Graph",
+      "kind": "references",
+      "metadata": {
+        "label": "field graph"
+      }
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/server.Server-type:github.com/cridiv/codelens/llm.LLMClient-references",
+      "from": "type:github.com/cridiv/codelens/server.Server",
+      "to": "type:github.com/cridiv/codelens/llm.LLMClient",
+      "kind": "references",
+      "metadata": {
+        "label": "field llm"
+      }
+    }
+  ]
+}

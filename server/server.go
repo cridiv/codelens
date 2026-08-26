@@ -56,16 +56,10 @@ func New(opts Options) *Server {
 
 	// ── Static UI ─────────────────────────────────────────────────────────────
 	if opts.UIFiles != nil {
-		// Serve ui/dist contents at /; strip the "ui/dist" prefix so that
-		// index.html is accessible at "/" rather than "/ui/dist/index.html".
-		stripped, err := fs.Sub(opts.UIFiles, "ui/dist")
-		if err != nil {
-			log.Printf("[server] warn: could not strip ui/dist prefix: %v", err)
-		} else {
-			uiHandler := http.FileServer(http.FS(stripped))
-			// Only intercept non-API routes.
-			mux.Handle("/", uiHandler)
-		}
+		// opts.UIFiles is already the stripped FS (ui/dist contents at root).
+		// Wrap in an SPA-aware handler so React client-side routes return index.html.
+		fileServer := http.FileServer(http.FS(opts.UIFiles))
+		mux.Handle("/", spaHandler(opts.UIFiles, fileServer))
 	}
 
 	s.httpSrv = &http.Server{
@@ -139,3 +133,30 @@ func corsMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+// spaHandler wraps a file server to support single-page applications.
+// If the requested path doesn't correspond to an existing file, it serves
+// index.html so that client-side routing can take over.
+func spaHandler(root fs.FS, fileServer http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Check whether the file actually exists in the embedded FS.
+		path := r.URL.Path
+		if path == "/" {
+			path = "index.html"
+		} else {
+			// Strip leading slash for fs.Stat
+			path = path[1:]
+		}
+
+		if _, err := fs.Stat(root, path); err != nil {
+			// File not found — serve index.html for SPA routing.
+			r2 := *r
+			r2.URL.Path = "/"
+			fileServer.ServeHTTP(w, &r2)
+			return
+		}
+
+		fileServer.ServeHTTP(w, r)
+	})
+}
+
