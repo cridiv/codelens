@@ -1,5 +1,5 @@
 // Package openai provides an LLM client for any OpenAI-compatible API endpoint.
-// This covers NVIDIA NIM (Llama, Nemotron, etc.), OpenAI, and self-hosted endpoints.
+// This covers NVIDIA NIM (Nemotron, Llama, etc.), OpenAI, and self-hosted endpoints.
 package openai
 
 import (
@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"strings"
 	"time"
@@ -20,8 +21,8 @@ const (
 	// NVIDIANIMBaseURL is the base URL for NVIDIA NIM hosted models.
 	NVIDIANIMBaseURL = "https://integrate.api.nvidia.com/v1"
 
-	// DefaultModel is the Llama-70B model on NVIDIA NIM.
-	DefaultModel = "meta/llama-3.1-70b-instruct"
+	// DefaultModel is the Nemotron 120B MoE model on NVIDIA NIM.
+	DefaultModel = "nvidia/nemotron-3-super-120b-a12b"
 
 	defaultTimeout = 90 * time.Second
 )
@@ -57,12 +58,27 @@ func New(opts Options) *Client {
 	if timeout == 0 {
 		timeout = defaultTimeout
 	}
+	transport := &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+		DialContext: (&net.Dialer{
+			Timeout:   30 * time.Second,
+			KeepAlive: 30 * time.Second,
+		}).DialContext,
+		ForceAttemptHTTP2:     true,
+		MaxIdleConns:          100,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   30 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+		ResponseHeaderTimeout: 60 * time.Second,
+	}
+
 	return &Client{
 		baseURL: strings.TrimRight(opts.BaseURL, "/"),
 		apiKey:  opts.APIKey,
 		model:   opts.Model,
 		httpClient: &http.Client{
-			Timeout: timeout,
+			Timeout:   timeout,
+			Transport: transport,
 		},
 	}
 }
@@ -92,7 +108,7 @@ type chatResponse struct {
 	} `json:"error,omitempty"`
 }
 
-// Explain generates a layered architectural explanation for the given node.
+// Explain generates a simple, beginner-friendly explanation for the given node.
 func (c *Client) Explain(ctx context.Context, node graph.Node, subgraph graph.Graph, sourceCode string) (string, error) {
 	prompt := buildPrompt(node, subgraph, sourceCode)
 
@@ -102,8 +118,8 @@ func (c *Client) Explain(ctx context.Context, node graph.Node, subgraph graph.Gr
 			{Role: "system", Content: systemPrompt},
 			{Role: "user", Content: prompt},
 		},
-		Temperature: 0.2,
-		MaxTokens:   2500,
+		Temperature: 0.3,
+		MaxTokens:   1200,
 	}
 
 	body, err := json.Marshal(reqBody)
@@ -151,9 +167,9 @@ func (c *Client) Explain(ctx context.Context, node graph.Node, subgraph graph.Gr
 
 // ── Prompt construction ───────────────────────────────────────────────────────
 
-const systemPrompt = `You are a distinguished systems architect and technical writer with the educational clarity, rigor, and engaging flow of Martin Kleppmann (author of Designing Data-Intensive Applications).
-Explain codebase components with crystal-clear intuition, concrete examples, and precise architectural context.
-Ensure transitions between sections are natural and engaging.`
+const systemPrompt = `You are a friendly, clear teacher explaining code to someone who wants simple, plain-English understanding.
+Avoid heavy academic jargon or overwhelming walls of text.
+Keep explanations concise, approachable, and focused on intuitive understanding.`
 
 func buildPrompt(node graph.Node, subgraph graph.Graph, sourceCode string) string {
 	pkg := node.Metadata["package"]
@@ -161,7 +177,7 @@ func buildPrompt(node graph.Node, subgraph graph.Graph, sourceCode string) strin
 		pkg = "unknown"
 	}
 
-	var callers, callees, types []string
+	var callers, callees []string
 	for _, e := range subgraph.Edges {
 		switch e.Kind {
 		case "calls":
@@ -174,50 +190,38 @@ func buildPrompt(node graph.Node, subgraph graph.Graph, sourceCode string) strin
 					callees = append(callees, n.Name)
 				}
 			}
-		case "implements", "references":
-			if e.From == node.ID {
-				if n, ok := nodeByID(subgraph, e.To); ok {
-					types = append(types, n.Name)
-				}
-			}
 		}
 	}
 
 	var sb strings.Builder
-	fmt.Fprintf(&sb, "Explain the Go component `%s` (%s) in package `%s` located at `%s`.\n\n", node.Name, node.Kind, pkg, node.Path)
+	fmt.Fprintf(&sb, "Explain this Go `%s` named `%s` in package `%s`.\n\n", node.Kind, node.Name, pkg)
 
-	fmt.Fprintln(&sb, "### Code Context / Signature:")
+	fmt.Fprintln(&sb, "### Code:")
 	fmt.Fprintln(&sb, "```go")
 	fmt.Fprintln(&sb, sourceCode)
 	fmt.Fprintln(&sb, "```")
 
 	if len(callers) > 0 {
-		fmt.Fprintf(&sb, "\n- Inbound Callers: %s\n", strings.Join(callers, ", "))
+		fmt.Fprintf(&sb, "\nCalled by: %s\n", strings.Join(callers, ", "))
 	}
 	if len(callees) > 0 {
-		fmt.Fprintf(&sb, "- Outbound Calls: %s\n", strings.Join(callees, ", "))
-	}
-	if len(types) > 0 {
-		fmt.Fprintf(&sb, "- Types Implemented / Referenced: %s\n", strings.Join(types, ", "))
+		fmt.Fprintf(&sb, "Calls: %s\n", strings.Join(callees, ", "))
 	}
 
 	fmt.Fprintln(&sb, `
-Please structure your architectural explanation strictly with these sections:
+Please provide a simple, friendly explanation with these 4 short sections:
 
-1. Background
-Provide the necessary context. Include a deep, accessible background for someone new to this area of the codebase, followed by the narrow context directly relevant to this specific component and package.
+1. The Big Idea
+Explain what this does in 1-2 simple sentences and a clear everyday metaphor. No technical jargon.
 
-2. Intuition
-Explain the core mental model and purpose. Why does this design exist? Use a simple, concrete example with toy data or visual representations to illustrate how data or control flows through it.
+2. Why It Exists
+Why does the codebase need this? What practical problem does it solve for the app?
 
-3. Code Walkthrough
-Walk through the mechanics of the implementation in an orderly, understandable sequence. Highlight the main responsibilities, invariants, and key decision points.
+3. How It Works
+Break down the main steps in 3-4 simple bullet points in plain English.
 
-4. Dependencies & Graph Position
-Describe how this component interacts with the surrounding system (callers, callees, and data models). Explain what upstream callers rely on it for, and what lower-level subsystems it delegates work to.
-
-5. Key Takeaways & Edge Cases
-Highlight crucial invariants, failure modes, concurrency/lifecycle considerations, or non-obvious details to keep in mind.`)
+4. Simple Example
+Show a tiny toy example of what goes in and what comes out so anyone can visualize it.`)
 
 	return sb.String()
 }

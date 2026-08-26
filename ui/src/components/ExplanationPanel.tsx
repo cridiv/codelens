@@ -1,6 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { useStore } from '../store/useStore';
-import { Sparkles, Copy, Check, RefreshCw, AlertCircle, Loader2, BookOpen, Lightbulb, Code2, Network, ShieldAlert, ChevronDown, ChevronRight } from 'lucide-react';
+import {
+  Sparkles,
+  Copy,
+  Check,
+  RefreshCw,
+  AlertCircle,
+  Loader2,
+  FileCode2,
+  ArrowRight,
+  ArrowLeft,
+  ChevronDown,
+  ChevronUp,
+  Lightbulb,
+  Boxes,
+  Layers,
+  GraduationCap,
+  LogIn,
+  LogOut,
+  HelpCircle,
+} from 'lucide-react';
 
 interface ExplainResponse {
   explanation: string;
@@ -10,16 +31,7 @@ interface Section {
   number: string;
   title: string;
   content: string;
-  icon?: React.ReactNode;
 }
-
-const SECTION_ICONS: Record<string, React.ReactNode> = {
-  '1': <BookOpen size={14} className="text-blue-500" />,
-  '2': <Lightbulb size={14} className="text-amber-500" />,
-  '3': <Code2 size={14} className="text-emerald-500" />,
-  '4': <Network size={14} className="text-purple-500" />,
-  '5': <ShieldAlert size={14} className="text-rose-500" />,
-};
 
 function parseSections(text: string): Section[] {
   const sections: Section[] = [];
@@ -30,15 +42,16 @@ function parseSections(text: string): Section[] {
   const flush = () => {
     if (current) {
       current.content = bodyLines.join('\n').trim();
-      current.icon = SECTION_ICONS[current.number] || <Sparkles size={14} className="text-blue-500" />;
-      sections.push(current);
+      if (current.content) {
+        sections.push(current);
+      }
       bodyLines = [];
     }
   };
 
   for (const line of lines) {
-    const match = line.match(/^#*\s*(\d+)\.\s+(.+)/);
-    if (match) {
+    const match = line.match(/^(?:#+\s*)?(?:\*\*)?(\d+)\.\s*(?:\*\*)?\s*([^\n*#]+?)(?:\*\*)?$/);
+    if (match && match[2].trim().length > 0 && match[2].trim().length < 80) {
       flush();
       current = {
         number: match[1],
@@ -55,9 +68,8 @@ function parseSections(text: string): Section[] {
     return [
       {
         number: '1',
-        title: 'Architectural Overview',
+        title: 'Architectural Breakdown',
         content: text,
-        icon: <BookOpen size={14} className="text-blue-500" />,
       },
     ];
   }
@@ -65,32 +77,159 @@ function parseSections(text: string): Section[] {
   return sections;
 }
 
+// ── Plain English Semantic Helper ─────────────────────────────────────────────
+
+function derivePlainEnglishSpec(node: ReturnType<typeof useStore.getState>['graph']['nodes'][0]) {
+  const sig = node.metadata?.signature || '';
+  const doc = node.metadata?.doc || '';
+  const name = node.name;
+  const kind = node.kind;
+
+  // Extract params and return from signature: func (r Recv) Name(a string, b int) (Result, error)
+  let paramsStr = '';
+  let returnsStr = '';
+
+  const paramMatch = sig.match(/\(([^()]*)\)\s*(?:\(([^()]*)\)|([^{\n]+))?$/);
+  if (paramMatch) {
+    // If it has a receiver, signature has 2 sets of parens before return
+    const allParens = [...sig.matchAll(/\(([^()]*)\)/g)];
+    if (allParens.length >= 2) {
+      paramsStr = allParens[1][1];
+      if (allParens.length >= 3) {
+        returnsStr = allParens[2][1];
+      } else {
+        const after = sig.split(/\)(?=[^)]*$)/)[1];
+        if (after) returnsStr = after.trim();
+      }
+    } else if (allParens.length === 1) {
+      paramsStr = allParens[0][1];
+      const after = sig.substring(sig.indexOf(')') + 1).trim();
+      returnsStr = after;
+    }
+  }
+
+  // Parse individual input parameters
+  const inputs: { name: string; type: string }[] = [];
+  if (paramsStr.trim()) {
+    paramsStr.split(',').forEach((p) => {
+      const parts = p.trim().split(/\s+/);
+      if (parts.length >= 2) {
+        inputs.push({ name: parts[0], type: parts.slice(1).join(' ') });
+      } else if (parts.length === 1 && parts[0]) {
+        inputs.push({ name: 'arg', type: parts[0] });
+      }
+    });
+  }
+
+  // Parse return types
+  const outputs: string[] = [];
+  if (returnsStr.trim()) {
+    returnsStr.replace(/[()]/g, '').split(',').forEach((r) => {
+      const cleaned = r.trim();
+      if (cleaned) outputs.push(cleaned);
+    });
+  }
+
+  // Generate plain English description
+  let whatItDoes = doc;
+  if (!whatItDoes) {
+    if (kind === 'function') {
+      whatItDoes = `Executes the ${name} operation within the ${node.metadata?.package || 'current'} package.`;
+    } else if (kind === 'type' || kind === 'interface') {
+      whatItDoes = `Defines the data structure and interface contract for ${name}.`;
+    } else if (kind === 'package') {
+      whatItDoes = `Encapsulates package-level functionality for ${name}.`;
+    } else if (kind === 'file') {
+      whatItDoes = `Contains source code and declarations for ${name}.`;
+    }
+  }
+
+  let whyItExists = `Provides modular, reusable logic to keep the ${node.metadata?.package || 'root'} architecture decoupled and maintainable.`;
+  if (kind === 'type') {
+    whyItExists = `Serves as the core domain model for representing ${name} across the application.`;
+  } else if (kind === 'interface') {
+    whyItExists = `Establishes an abstraction boundary so other components can interact with ${name} without depending on concrete implementations.`;
+  }
+
+  return {
+    whatItDoes,
+    whyItExists,
+    inputs,
+    outputs,
+    rawSignature: sig,
+  };
+}
+
 export const ExplanationPanel: React.FC = () => {
   const { graph, selectedNodeId } = useStore();
-  const [explanation, setExplanation] = useState<string | null>(null);
+  const [explanationCache, setExplanationCache] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [lastFetchedId, setLastFetchedId] = useState<string | null>(null);
-  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+  const [showTechnicalSpec, setShowTechnicalSpec] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const selectedNode = React.useMemo(() => {
     if (!selectedNodeId) return null;
     return graph.nodes.find((n) => n.id === selectedNodeId) || null;
   }, [selectedNodeId, graph.nodes]);
 
-  useEffect(() => {
-    if (!selectedNodeId || selectedNodeId === lastFetchedId) return;
+  const neighbors = React.useMemo(() => {
+    if (!selectedNodeId) return { callers: [], callees: [], types: [] };
+    const callers: string[] = [];
+    const callees: string[] = [];
+    const types: string[] = [];
 
-    let cancelled = false;
+    graph.edges.forEach((e) => {
+      if (e.kind === 'calls') {
+        if (e.to === selectedNodeId) {
+          const fromNode = graph.nodes.find((n) => n.id === e.from);
+          if (fromNode) callers.push(fromNode.name);
+        } else if (e.from === selectedNodeId) {
+          const toNode = graph.nodes.find((n) => n.id === e.to);
+          if (toNode) callees.push(toNode.name);
+        }
+      } else if (e.kind === 'implements' || e.kind === 'references') {
+        if (e.from === selectedNodeId) {
+          const toNode = graph.nodes.find((n) => n.id === e.to);
+          if (toNode) types.push(toNode.name);
+        }
+      }
+    });
+
+    return { callers, callees, types };
+  }, [selectedNodeId, graph.nodes, graph.edges]);
+
+  const currentExplanation = selectedNodeId ? explanationCache[selectedNodeId] || null : null;
+
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
+  const fetchExplanation = (nodeId: string, force = false) => {
+    if (!force && explanationCache[nodeId]) {
+      return;
+    }
+
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setLoading(true);
     setError(null);
-    setExplanation(null);
 
     fetch('/api/explain', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nodeId: selectedNodeId }),
+      body: JSON.stringify({ nodeId }),
+      signal: controller.signal,
     })
       .then((res) => {
         if (!res.ok) {
@@ -101,200 +240,653 @@ export const ExplanationPanel: React.FC = () => {
         return res.json() as Promise<ExplainResponse>;
       })
       .then((data) => {
-        if (!cancelled) {
-          setExplanation(data.explanation);
-          setLastFetchedId(selectedNodeId);
-        }
+        setExplanationCache((prev) => ({
+          ...prev,
+          [nodeId]: data.explanation,
+        }));
+        setError(null);
       })
       .catch((err: Error) => {
-        if (!cancelled) setError(err.message);
+        if (err.name === 'AbortError') {
+          return;
+        }
+        setError(err.message || 'Failed to fetch explanation from server.');
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        setLoading(false);
       });
+  };
 
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedNodeId, lastFetchedId]);
+  const handleCopyExplanation = () => {
+    if (!selectedNode) return;
+    const plainSpec = derivePlainEnglishSpec(selectedNode);
+    const text =
+      currentExplanation ||
+      `# ${selectedNode.name} (${selectedNode.kind})\n\n` +
+      `**What it does:** ${plainSpec.whatItDoes}\n\n` +
+      `**Why it exists:** ${plainSpec.whyItExists}\n\n` +
+      `**Path:** ${selectedNode.path}\n` +
+      `**Signature:** ${selectedNode.metadata?.signature || ''}`;
 
-  const handleCopy = () => {
-    if (!explanation) return;
-    navigator.clipboard?.writeText?.(explanation);
+    navigator.clipboard?.writeText?.(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleRefresh = () => {
-    setLastFetchedId(null);
-  };
-
-  const toggleSection = (number: string) => {
-    setCollapsedSections((prev) => ({
-      ...prev,
-      [number]: !prev[number],
-    }));
-  };
-
   if (!selectedNode) {
     return (
-      <aside className="w-full h-full bg-slate-900 border-l border-slate-800 flex flex-col items-center justify-center p-8 text-center text-slate-400 select-none">
-        <div className="w-12 h-12 rounded-2xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center mb-4 shadow-inner">
-          <Sparkles size={22} className="text-blue-400" />
+      <aside
+        style={{
+          width: '100%',
+          height: '100%',
+          backgroundColor: '#ffffff',
+          borderLeft: '1px solid #e2e8f0',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '2rem',
+          textAlign: 'center',
+          color: '#94a3b8',
+        }}
+      >
+        <div
+          style={{
+            width: 48,
+            height: 48,
+            borderRadius: '12px',
+            backgroundColor: '#f1f5f9',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '1rem',
+          }}
+        >
+          <Sparkles size={24} color="#94a3b8" />
         </div>
-        <h4 className="text-sm font-semibold text-slate-200 mb-1">Architecture Explainer</h4>
-        <p className="text-xs text-slate-400 max-w-[240px] leading-relaxed">
-          Select any node in the graph or hierarchy tree to get a structured Kleppmann-style architectural explanation.
+        <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+          CodeLens Inspector
+        </h4>
+        <p style={{ fontSize: '0.78rem', lineHeight: 1.5, maxWidth: 220 }}>
+          Select any struct, interface, or function in the schema canvas to explore its plain-English architecture.
         </p>
       </aside>
     );
   }
 
-  const sections = explanation ? parseSections(explanation) : [];
+  const plainSpec = derivePlainEnglishSpec(selectedNode);
+  const sections = currentExplanation ? parseSections(currentExplanation) : [];
+  const isHighLevel = selectedNode.kind === 'package' || selectedNode.kind === 'file' || selectedNode.kind === 'type' || selectedNode.kind === 'interface';
 
   return (
-    <aside className="w-full h-full bg-slate-900 border-l border-slate-800 flex flex-col overflow-hidden select-text">
-      {/* ── Sticky Header ──────────────────────────────────────────────────────── */}
-      <div className="p-4 border-b border-slate-800 bg-slate-950/80 backdrop-blur-md flex-shrink-0 z-10">
-        <div className="flex items-center justify-between gap-2 mb-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase rounded border bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
+    <aside
+      style={{
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#ffffff',
+        display: 'flex',
+        flexDirection: 'column',
+        borderLeft: '1px solid #e2e8f0',
+        overflow: 'hidden',
+      }}
+    >
+      {/* ── Entity Header ────────────────────────────────────────────────────── */}
+      <div
+        style={{
+          padding: '14px 16px 12px 16px',
+          borderBottom: '1px solid #f1f5f9',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 6,
+          backgroundColor: '#fafafa',
+          flexShrink: 0,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span
+              style={{
+                fontSize: '0.65rem',
+                fontWeight: 700,
+                color: selectedNode.kind === 'interface' ? '#d97706' : selectedNode.kind === 'type' ? '#059669' : '#2563eb',
+                backgroundColor: selectedNode.kind === 'interface' ? '#fffbeb' : selectedNode.kind === 'type' ? '#ecfdf5' : '#eff6ff',
+                border: `1px solid ${selectedNode.kind === 'interface' ? '#fde68a' : selectedNode.kind === 'type' ? '#a7f3d0' : '#bfdbfe'}`,
+                padding: '2px 6px',
+                borderRadius: '4px',
+                textTransform: 'uppercase',
+              }}
+            >
               {selectedNode.kind}
             </span>
-            <span className="text-xs text-slate-400 font-mono">
+            <span
+              style={{
+                fontSize: '0.7rem',
+                color: '#64748b',
+                fontFamily: 'var(--font-mono), monospace',
+              }}
+            >
               pkg/{selectedNode.metadata?.package || 'root'}
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            {explanation && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            {currentExplanation && (
               <button
-                onClick={handleRefresh}
-                title="Regenerate explanation"
-                className="p-1.5 text-xs text-slate-400 hover:text-slate-200 bg-slate-800 hover:bg-slate-700/80 border border-slate-700/60 rounded-md transition-colors"
+                onClick={() => fetchExplanation(selectedNode.id, true)}
+                title="Regenerate AI explanation"
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  color: '#475569',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '3px 6px',
+                }}
               >
                 <RefreshCw size={12} />
               </button>
             )}
             <button
-              onClick={handleCopy}
-              disabled={!explanation}
-              title="Copy markdown"
-              className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-slate-300 bg-slate-800 hover:bg-slate-700/80 disabled:opacity-40 border border-slate-700/60 rounded-md transition-colors"
+              onClick={handleCopyExplanation}
+              title="Copy summary"
+              style={{
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                color: '#475569',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                padding: '3px 8px',
+                fontSize: '0.7rem',
+                fontWeight: 500,
+              }}
             >
-              {copied ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
-              <span>{copied ? 'Copied' : 'Copy'}</span>
+              {copied ? <Check size={12} color="#10b981" /> : <Copy size={12} />}
+              {copied ? 'Copied' : 'Copy'}
             </button>
           </div>
         </div>
 
-        <h3 className="text-base font-bold text-slate-100 font-mono truncate" title={selectedNode.name}>
+        <h3
+          style={{
+            fontSize: '1.05rem',
+            fontWeight: 700,
+            color: '#0f172a',
+            fontFamily: 'var(--font-mono), monospace',
+            margin: '2px 0',
+          }}
+        >
           {selectedNode.name}
         </h3>
-        <p className="text-[11px] text-slate-400 font-mono truncate mt-0.5" title={selectedNode.path}>
-          {selectedNode.path}
-        </p>
+
+        <div
+          style={{
+            fontSize: '0.72rem',
+            color: '#64748b',
+            fontFamily: 'var(--font-mono), monospace',
+            wordBreak: 'break-all',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+          }}
+        >
+          <FileCode2 size={12} color="#94a3b8" />
+          <span>{selectedNode.path}</span>
+        </div>
       </div>
 
-      {/* ── Scrollable Body ─────────────────────────────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-3.5 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
-        {/* Loading State */}
-        {loading && (
-          <div className="flex flex-col items-center justify-center py-16 gap-3 text-slate-400">
-            <Loader2 size={26} className="animate-spin text-blue-400" />
-            <div className="text-center">
-              <p className="text-xs font-medium text-slate-200">Analyzing architecture…</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">Synthesizing systems context via Llama 70B</p>
+      {/* ── Scrollable Body ─────────────────────────────────────────────────── */}
+      <div
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '14px 16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 12,
+        }}
+      >
+        {/* 1. What It Does (Plain English) */}
+        <div
+          style={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px',
+            padding: '12px 14px',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+          }}
+        >
+          <div
+            style={{
+              fontSize: '0.7rem',
+              fontWeight: 700,
+              color: '#0f172a',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+              marginBottom: 6,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <Lightbulb size={13} color="#2563eb" />
+            <span>What it does</span>
+          </div>
+          <p style={{ fontSize: '0.82rem', color: '#334155', lineHeight: 1.5, margin: 0 }}>
+            {plainSpec.whatItDoes}
+          </p>
+        </div>
+
+        {/* 2. Why It Exists */}
+        <div
+          style={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px',
+            padding: '12px 14px',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+          }}
+        >
+          <div
+            style={{
+              fontSize: '0.7rem',
+              fontWeight: 700,
+              color: '#0f172a',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+              marginBottom: 6,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <HelpCircle size={13} color="#10b981" />
+            <span>Why it exists</span>
+          </div>
+          <p style={{ fontSize: '0.82rem', color: '#334155', lineHeight: 1.5, margin: 0 }}>
+            {plainSpec.whyItExists}
+          </p>
+        </div>
+
+        {/* 3. Simple Input / Output Breakdown (for functions/methods) */}
+        {(plainSpec.inputs.length > 0 || plainSpec.outputs.length > 0) && (
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '8px',
+              padding: '12px 14px',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+            }}
+          >
+            <div
+              style={{
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                color: '#0f172a',
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+                marginBottom: 8,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              <Boxes size={13} color="#6366f1" />
+              <span>Inputs & Outputs</span>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {plainSpec.inputs.length > 0 && (
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#2563eb', fontWeight: 600, width: 60, flexShrink: 0 }}>
+                    <LogIn size={12} />
+                    <span>Inputs:</span>
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                    {plainSpec.inputs.map((inp, idx) => (
+                      <span
+                        key={idx}
+                        style={{
+                          backgroundColor: '#f1f5f9',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '4px',
+                          padding: '1px 6px',
+                          fontFamily: 'var(--font-mono), monospace',
+                          fontSize: '0.7rem',
+                          color: '#334155',
+                        }}
+                      >
+                        <strong>{inp.name}</strong> <span style={{ color: '#64748b' }}>({inp.type})</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {plainSpec.outputs.length > 0 && (
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#059669', fontWeight: 600, width: 60, flexShrink: 0 }}>
+                    <LogOut size={12} />
+                    <span>Returns:</span>
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                    {plainSpec.outputs.map((out, idx) => (
+                      <span
+                        key={idx}
+                        style={{
+                          backgroundColor: '#ecfdf5',
+                          border: '1px solid #a7f3d0',
+                          borderRadius: '4px',
+                          padding: '1px 6px',
+                          fontFamily: 'var(--font-mono), monospace',
+                          fontSize: '0.7rem',
+                          color: '#065f46',
+                        }}
+                      >
+                        {out}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {/* Error State */}
-        {error && !loading && (
-          <div className="p-3.5 bg-rose-500/10 border border-rose-500/20 rounded-xl space-y-2">
-            <div className="flex items-center gap-2 text-rose-400 text-xs font-semibold">
-              <AlertCircle size={14} />
-              <span>Explanation generation failed</span>
+        {/* 4. What It Connects To */}
+        {(neighbors.callers.length > 0 || neighbors.callees.length > 0 || neighbors.types.length > 0) && (
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '8px',
+              padding: '12px 14px',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+            }}
+          >
+            <div
+              style={{
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                color: '#0f172a',
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+                marginBottom: 8,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              <Layers size={13} color="#8b5cf6" />
+              <span>What it connects to</span>
             </div>
-            <p className="text-[11px] text-rose-300 font-mono break-all leading-relaxed">{error}</p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5, fontSize: '0.75rem' }}>
+              {neighbors.callers.length > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <ArrowLeft size={12} color="#2563eb" style={{ flexShrink: 0 }} />
+                  <span style={{ fontWeight: 600, color: '#2563eb', width: 70, flexShrink: 0 }}>Called by:</span>
+                  <span style={{ color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {neighbors.callers.join(', ')}
+                  </span>
+                </div>
+              )}
+
+              {neighbors.callees.length > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <ArrowRight size={12} color="#059669" style={{ flexShrink: 0 }} />
+                  <span style={{ fontWeight: 600, color: '#059669', width: 70, flexShrink: 0 }}>Calls:</span>
+                  <span style={{ color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {neighbors.callees.join(', ')}
+                  </span>
+                </div>
+              )}
+
+              {neighbors.types.length > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Boxes size={12} color="#7c3aed" style={{ flexShrink: 0 }} />
+                  <span style={{ fontWeight: 600, color: '#7c3aed', width: 70, flexShrink: 0 }}>Uses Type:</span>
+                  <span style={{ color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {neighbors.types.join(', ')}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── AI Deep Dive Section ("Teach Me") ────────────────────────────── */}
+        {!currentExplanation && !loading && !error && (
+          <div
+            style={{
+              padding: '16px 14px',
+              backgroundColor: isHighLevel ? '#f0fdf4' : '#eff6ff',
+              border: `1px dashed ${isHighLevel ? '#bbf7d0' : '#bfdbfe'}`,
+              borderRadius: '8px',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 8,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: isHighLevel ? '#15803d' : '#1d4ed8', fontWeight: 600, fontSize: '0.82rem' }}>
+              <GraduationCap size={16} />
+              <span>{isHighLevel ? 'High-Level Architectural Synthesis' : 'Teach Me (Deep Dive)'}</span>
+            </div>
+            <p style={{ fontSize: '0.74rem', color: isHighLevel ? '#166534' : '#3b82f6', margin: 0, lineHeight: 1.45, maxWidth: 260 }}>
+              {isHighLevel
+                ? 'Synthesize the architectural role, mental model, and subsystem interactions with Nemotron 120B.'
+                : 'Explain intuition → core concepts → implementation flow → technical invariants.'}
+            </p>
             <button
-              onClick={handleRefresh}
-              className="text-xs font-medium text-blue-400 hover:text-blue-300 underline inline-block pt-1"
+              onClick={() => fetchExplanation(selectedNode.id)}
+              style={{
+                marginTop: 4,
+                backgroundColor: isHighLevel ? '#16a34a' : '#2563eb',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '7px 16px',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                transition: 'transform 0.1s ease',
+              }}
+            >
+              <Sparkles size={13} />
+              <span>{isHighLevel ? 'Synthesize Architecture with AI' : 'Teach Me with AI'}</span>
+            </button>
+          </div>
+        )}
+
+        {loading && (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              padding: '2rem 0',
+              color: '#64748b',
+            }}
+          >
+            <Loader2 size={22} className="animate-spin" color="#2563eb" />
+            <span style={{ fontSize: '0.8rem', fontWeight: 500 }}>Nemotron 120B is synthesizing intuition & concepts…</span>
+          </div>
+        )}
+
+        {error && !loading && (
+          <div
+            style={{
+              backgroundColor: '#fef2f2',
+              border: '1px solid #fecaca',
+              borderRadius: '8px',
+              padding: '12px 14px',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                color: '#dc2626',
+                marginBottom: 4,
+              }}
+            >
+              <AlertCircle size={14} />
+              Explanation failed
+            </div>
+            <p style={{ fontSize: '0.74rem', color: '#991b1b', margin: 0, fontFamily: 'monospace', wordBreak: 'break-all' }}>
+              {error}
+            </p>
+            <button
+              onClick={() => fetchExplanation(selectedNode.id, true)}
+              style={{
+                marginTop: 8,
+                fontSize: '0.74rem',
+                color: '#2563eb',
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
+                fontWeight: 600,
+              }}
             >
               Retry explanation →
             </button>
           </div>
         )}
 
-        {/* Structured Sections */}
-        {!loading && sections.map((sec) => {
-          const isCollapsed = collapsedSections[sec.number];
-          return (
+        {/* Rendered 4-part AI Progression */}
+        {!loading && sections.length > 0 && sections.map((sec) => (
+          <div
+            key={sec.number}
+            style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '8px',
+              padding: '14px 16px',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+            }}
+          >
             <div
-              key={sec.number}
-              className="bg-slate-950/60 border border-slate-800/80 rounded-xl overflow-hidden shadow-sm transition-all duration-200"
+              style={{
+                fontSize: '0.74rem',
+                fontWeight: 700,
+                color: '#0f172a',
+                textTransform: 'uppercase',
+                letterSpacing: '0.03em',
+                marginBottom: 10,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+              }}
             >
-              <button
-                onClick={() => toggleSection(sec.number)}
-                className="w-full px-3.5 py-2.5 flex items-center justify-between gap-2 bg-slate-900/60 hover:bg-slate-800/50 text-left border-b border-slate-800/40 transition-colors"
+              <span
+                style={{
+                  backgroundColor: '#eff6ff',
+                  color: '#2563eb',
+                  border: '1px solid #bfdbfe',
+                  width: 20,
+                  height: 20,
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '0.68rem',
+                  fontWeight: 800,
+                }}
               >
-                <div className="flex items-center gap-2">
-                  {sec.icon}
-                  <span className="text-xs font-semibold text-slate-200 tracking-wide">
-                    {sec.number}. {sec.title}
-                  </span>
-                </div>
-                {isCollapsed ? <ChevronRight size={13} className="text-slate-500" /> : <ChevronDown size={13} className="text-slate-500" />}
-              </button>
+                {sec.number}
+              </span>
+              <span>{sec.title}</span>
+            </div>
+            <div className="markdown-content">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {sec.content}
+              </ReactMarkdown>
+            </div>
+          </div>
+        ))}
 
-              {!isCollapsed && (
-                <div className="p-3.5 text-xs text-slate-300 leading-relaxed space-y-2 whitespace-pre-wrap font-sans">
-                  {renderFormattedContent(sec.content)}
+        {/* ── Collapsible Technical Spec & Source Code ─────────────────────── */}
+        <div
+          style={{
+            marginTop: 4,
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px',
+            overflow: 'hidden',
+            backgroundColor: '#ffffff',
+          }}
+        >
+          <button
+            onClick={() => setShowTechnicalSpec((prev) => !prev)}
+            style={{
+              width: '100%',
+              padding: '10px 14px',
+              backgroundColor: '#f8fafc',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: '0.74rem',
+              fontWeight: 600,
+              color: '#475569',
+            }}
+          >
+            <span>Technical Spec & Code</span>
+            {showTechnicalSpec ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          </button>
+
+          {showTechnicalSpec && (
+            <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8, borderTop: '1px solid #e2e8f0' }}>
+              {selectedNode.metadata?.signature && (
+                <div>
+                  <div style={{ fontSize: '0.68rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: 4 }}>
+                    Type Signature
+                  </div>
+                  <code
+                    style={{
+                      fontSize: '0.72rem',
+                      fontFamily: 'var(--font-mono), monospace',
+                      backgroundColor: '#f8fafc',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '5px',
+                      padding: '6px 10px',
+                      display: 'block',
+                      color: '#0f172a',
+                      overflowX: 'auto',
+                      whiteSpace: 'pre',
+                    }}
+                  >
+                    {selectedNode.metadata.signature}
+                  </code>
+                </div>
+              )}
+
+              {selectedNode.metadata?.receiver && (
+                <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                  <strong>Receiver:</strong> <code>{selectedNode.metadata.receiver}</code>
                 </div>
               )}
             </div>
-          );
-        })}
-
-        {/* Signature Card */}
-        {!loading && selectedNode.metadata?.signature && (
-          <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3.5 space-y-1.5">
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-              <Code2 size={12} className="text-emerald-400" />
-              <span>Type Signature</span>
-            </div>
-            <pre className="p-2.5 bg-slate-950 border border-slate-800 rounded-lg text-[11px] font-mono text-emerald-300 overflow-x-auto whitespace-pre">
-              {selectedNode.metadata.signature}
-            </pre>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </aside>
   );
 };
-
-function renderFormattedContent(content: string) {
-  if (!content) {
-    return <span className="text-slate-500 italic">No details available.</span>;
-  }
-
-  // Simple clean formatting for bullets, bold text, inline code
-  const paragraphs = content.split('\n\n');
-  return paragraphs.map((para, idx) => {
-    // If paragraph contains code block
-    if (para.startsWith('```')) {
-      const cleaned = para.replace(/^```[a-z]*\n?/, '').replace(/```$/, '');
-      return (
-        <pre key={idx} className="p-2.5 bg-slate-950 border border-slate-800 rounded-lg text-[11px] font-mono text-blue-300 overflow-x-auto whitespace-pre my-2">
-          {cleaned}
-        </pre>
-      );
-    }
-
-    return (
-      <p key={idx} className="text-slate-300 leading-relaxed text-[12px]">
-        {para}
-      </p>
-    );
-  });
-}

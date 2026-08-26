@@ -41,17 +41,108 @@
       }
     },
     {
+      "id": "type:github.com/cridiv/codelens/graph.Member",
+      "kind": "type",
+      "name": "Member",
+      "path": "graph/graph.go",
+      "metadata": {
+        "doc": "Member represents a field, method, or property within a type, struct, or interface node.",
+        "end_line": "15",
+        "file": "graph.go",
+        "members": "[{\"name\":\"Name\",\"type\":\"string\",\"kind\":\"field\",\"isExported\":true},{\"name\":\"Type\",\"type\":\"string\",\"kind\":\"field\",\"isExported\":true},{\"name\":\"Kind\",\"type\":\"string\",\"kind\":\"field\",\"isExported\":true,\"description\":\"\\\"field\\\" | \\\"method\\\" | \\\"function\\\" | \\\"parameter\\\"\"},{\"name\":\"IsExported\",\"type\":\"bool\",\"kind\":\"field\",\"isExported\":true},{\"name\":\"Description\",\"type\":\"string\",\"kind\":\"field\",\"isExported\":true}]",
+        "package": "graph",
+        "package_path": "github.com/cridiv/codelens/graph",
+        "signature": "type Member struct",
+        "start_line": "9"
+      },
+      "members": [
+        {
+          "name": "Name",
+          "type": "string",
+          "kind": "field",
+          "isExported": true
+        },
+        {
+          "name": "Type",
+          "type": "string",
+          "kind": "field",
+          "isExported": true
+        },
+        {
+          "name": "Kind",
+          "type": "string",
+          "kind": "field",
+          "isExported": true,
+          "description": "\"field\" | \"method\" | \"function\" | \"parameter\""
+        },
+        {
+          "name": "IsExported",
+          "type": "bool",
+          "kind": "field",
+          "isExported": true
+        },
+        {
+          "name": "Description",
+          "type": "string",
+          "kind": "field",
+          "isExported": true
+        }
+      ]
+    },
+    {
       "id": "type:github.com/cridiv/codelens/graph.Node",
       "kind": "type",
       "name": "Node",
       "path": "graph/graph.go",
       "metadata": {
         "doc": "Node represents any architectural entity in the codebase (package, file, type, function, interface, table).",
+        "end_line": "25",
         "file": "graph.go",
+        "members": "[{\"name\":\"ID\",\"type\":\"string\",\"kind\":\"field\",\"isExported\":true},{\"name\":\"Kind\",\"type\":\"string\",\"kind\":\"field\",\"isExported\":true,\"description\":\"\\\"package\\\" | \\\"file\\\" | \\\"type\\\" | \\\"function\\\" | \\\"interface\\\" | \\\"table\\\"\"},{\"name\":\"Name\",\"type\":\"string\",\"kind\":\"field\",\"isExported\":true},{\"name\":\"Path\",\"type\":\"string\",\"kind\":\"field\",\"isExported\":true},{\"name\":\"Metadata\",\"type\":\"map[string]string\",\"kind\":\"field\",\"isExported\":true},{\"name\":\"Members\",\"type\":\"[]Member\",\"kind\":\"field\",\"isExported\":true}]",
         "package": "graph",
         "package_path": "github.com/cridiv/codelens/graph",
-        "signature": "type Node struct"
-      }
+        "signature": "type Node struct",
+        "start_line": "18"
+      },
+      "members": [
+        {
+          "name": "ID",
+          "type": "string",
+          "kind": "field",
+          "isExported": true
+        },
+        {
+          "name": "Kind",
+          "type": "string",
+          "kind": "field",
+          "isExported": true,
+          "description": "\"package\" | \"file\" | \"type\" | \"function\" | \"interface\" | \"table\""
+        },
+        {
+          "name": "Name",
+          "type": "string",
+          "kind": "field",
+          "isExported": true
+        },
+        {
+          "name": "Path",
+          "type": "string",
+          "kind": "field",
+          "isExported": true
+        },
+        {
+          "name": "Metadata",
+          "type": "map[string]string",
+          "kind": "field",
+          "isExported": true
+        },
+        {
+          "name": "Members",
+          "type": "[]Member",
+          "kind": "field",
+          "isExported": true
+        }
+      ]
     },
     {
       "id": "type:github.com/cridiv/codelens/graph.Edge",
@@ -60,11 +151,47 @@
       "path": "graph/graph.go",
       "metadata": {
         "doc": "Edge represents a directed architectural relationship between two nodes.",
+        "end_line": "34",
         "file": "graph.go",
+        "members": "[{\"name\":\"ID\",\"type\":\"string\",\"kind\":\"field\",\"isExported\":true},{\"name\":\"From\",\"type\":\"string\",\"kind\":\"field\",\"isExported\":true},{\"name\":\"To\",\"type\":\"string\",\"kind\":\"field\",\"isExported\":true},{\"name\":\"Kind\",\"type\":\"string\",\"kind\":\"field\",\"isExported\":true,\"description\":\"\\\"calls\\\" | \\\"imports\\\" | \\\"implements\\\" | \\\"depends_on\\\" | \\\"contains\\\" | \\\"references\\\" | \\\"foreign_key\\\"\"},{\"name\":\"Metadata\",\"type\":\"map[string]string\",\"kind\":\"field\",\"isExported\":true}]",
         "package": "graph",
         "package_path": "github.com/cridiv/codelens/graph",
-        "signature": "type Edge struct"
-      }
+        "signature": "type Edge struct",
+        "start_line": "28"
+      },
+      "members": [
+        {
+          "name": "ID",
+          "type": "string",
+          "kind": "field",
+          "isExported": true
+        },
+        {
+          "name": "From",
+          "type": "string",
+          "kind": "field",
+          "isExported": true
+        },
+        {
+          "name": "To",
+          "type": "string",
+          "kind": "field",
+          "isExported": true
+        },
+        {
+          "name": "Kind",
+          "type": "string",
+          "kind": "field",
+          "isExported": true,
+          "description": "\"calls\" | \"imports\" | \"implements\" | \"depends_on\" | \"contains\" | \"references\" | \"foreign_key\""
+        },
+        {
+          "name": "Metadata",
+          "type": "map[string]string",
+          "kind": "field",
+          "isExported": true
+        }
+      ]
     },
     {
       "id": "type:github.com/cridiv/codelens/graph.Graph",
@@ -73,11 +200,77 @@
       "path": "graph/graph.go",
       "metadata": {
         "doc": "Graph represents the complete or partial architectural graph of a codebase.",
+        "end_line": "40",
         "file": "graph.go",
+        "members": "[{\"name\":\"Nodes\",\"type\":\"[]Node\",\"kind\":\"field\",\"isExported\":true},{\"name\":\"Edges\",\"type\":\"[]Edge\",\"kind\":\"field\",\"isExported\":true},{\"name\":\"AddNode\",\"type\":\"func(node Node)\",\"kind\":\"method\",\"isExported\":true,\"description\":\"AddNode adds a node to the graph if it doesn't already exist.\"},{\"name\":\"AddEdge\",\"type\":\"func(edge Edge)\",\"kind\":\"method\",\"isExported\":true,\"description\":\"AddEdge adds an edge to the graph. Silently skips duplicates (same From, To, Kind).\"},{\"name\":\"NodeByID\",\"type\":\"func(id string) (Node, bool)\",\"kind\":\"method\",\"isExported\":true,\"description\":\"NodeByID finds a node by its unique ID.\"},{\"name\":\"NeighborsOf\",\"type\":\"func(id string) Graph\",\"kind\":\"method\",\"isExported\":true,\"description\":\"NeighborsOf returns a one-hop subgraph containing the target node,\\nall immediately connected nodes (incoming and outgoing), and all incident edges between them.\"},{\"name\":\"NodesByFile\",\"type\":\"func(filePath string) []Node\",\"kind\":\"method\",\"isExported\":true,\"description\":\"NodesByFile returns all nodes belonging to a specific file path.\"},{\"name\":\"NodesByPackage\",\"type\":\"func(pkg string) []Node\",\"kind\":\"method\",\"isExported\":true,\"description\":\"NodesByPackage returns all nodes belonging to a specific package name.\"},{\"name\":\"ToJSON\",\"type\":\"func() ([]byte, error)\",\"kind\":\"method\",\"isExported\":true,\"description\":\"ToJSON serializes the Graph into pretty-printed JSON bytes.\"}]",
         "package": "graph",
         "package_path": "github.com/cridiv/codelens/graph",
-        "signature": "type Graph struct"
-      }
+        "signature": "type Graph struct",
+        "start_line": "37"
+      },
+      "members": [
+        {
+          "name": "Nodes",
+          "type": "[]Node",
+          "kind": "field",
+          "isExported": true
+        },
+        {
+          "name": "Edges",
+          "type": "[]Edge",
+          "kind": "field",
+          "isExported": true
+        },
+        {
+          "name": "AddNode",
+          "type": "func(node Node)",
+          "kind": "method",
+          "isExported": true,
+          "description": "AddNode adds a node to the graph if it doesn't already exist."
+        },
+        {
+          "name": "AddEdge",
+          "type": "func(edge Edge)",
+          "kind": "method",
+          "isExported": true,
+          "description": "AddEdge adds an edge to the graph. Silently skips duplicates (same From, To, Kind)."
+        },
+        {
+          "name": "NodeByID",
+          "type": "func(id string) (Node, bool)",
+          "kind": "method",
+          "isExported": true,
+          "description": "NodeByID finds a node by its unique ID."
+        },
+        {
+          "name": "NeighborsOf",
+          "type": "func(id string) Graph",
+          "kind": "method",
+          "isExported": true,
+          "description": "NeighborsOf returns a one-hop subgraph containing the target node,\nall immediately connected nodes (incoming and outgoing), and all incident edges between them."
+        },
+        {
+          "name": "NodesByFile",
+          "type": "func(filePath string) []Node",
+          "kind": "method",
+          "isExported": true,
+          "description": "NodesByFile returns all nodes belonging to a specific file path."
+        },
+        {
+          "name": "NodesByPackage",
+          "type": "func(pkg string) []Node",
+          "kind": "method",
+          "isExported": true,
+          "description": "NodesByPackage returns all nodes belonging to a specific package name."
+        },
+        {
+          "name": "ToJSON",
+          "type": "func() ([]byte, error)",
+          "kind": "method",
+          "isExported": true,
+          "description": "ToJSON serializes the Graph into pretty-printed JSON bytes."
+        }
+      ]
     },
     {
       "id": "fn:github.com/cridiv/codelens/graph.New",
@@ -86,10 +279,12 @@
       "path": "graph/graph.go",
       "metadata": {
         "doc": "New creates an empty Graph.",
+        "end_line": "48",
         "file": "graph.go",
         "package": "graph",
         "package_path": "github.com/cridiv/codelens/graph",
-        "signature": "func New(...)"
+        "signature": "func New() *Graph",
+        "start_line": "43"
       }
     },
     {
@@ -99,11 +294,13 @@
       "path": "graph/graph.go",
       "metadata": {
         "doc": "AddNode adds a node to the graph if it doesn't already exist.",
+        "end_line": "59",
         "file": "graph.go",
         "package": "graph",
         "package_path": "github.com/cridiv/codelens/graph",
         "receiver": "Graph",
-        "signature": "func (Graph) AddNode(...)"
+        "signature": "func (Graph) AddNode(node Node)",
+        "start_line": "51"
       }
     },
     {
@@ -113,11 +310,13 @@
       "path": "graph/graph.go",
       "metadata": {
         "doc": "AddEdge adds an edge to the graph. Silently skips duplicates (same From, To, Kind).",
+        "end_line": "72",
         "file": "graph.go",
         "package": "graph",
         "package_path": "github.com/cridiv/codelens/graph",
         "receiver": "Graph",
-        "signature": "func (Graph) AddEdge(...)"
+        "signature": "func (Graph) AddEdge(edge Edge)",
+        "start_line": "62"
       }
     },
     {
@@ -127,11 +326,13 @@
       "path": "graph/graph.go",
       "metadata": {
         "doc": "NodeByID finds a node by its unique ID.",
+        "end_line": "82",
         "file": "graph.go",
         "package": "graph",
         "package_path": "github.com/cridiv/codelens/graph",
         "receiver": "Graph",
-        "signature": "func (Graph) NodeByID(...)"
+        "signature": "func (Graph) NodeByID(id string) (Node, bool)",
+        "start_line": "75"
       }
     },
     {
@@ -141,11 +342,13 @@
       "path": "graph/graph.go",
       "metadata": {
         "doc": "NeighborsOf returns a one-hop subgraph containing the target node,\nall immediately connected nodes (incoming and outgoing), and all incident edges between them.",
+        "end_line": "118",
         "file": "graph.go",
         "package": "graph",
         "package_path": "github.com/cridiv/codelens/graph",
         "receiver": "Graph",
-        "signature": "func (Graph) NeighborsOf(...)"
+        "signature": "func (Graph) NeighborsOf(id string) Graph",
+        "start_line": "86"
       }
     },
     {
@@ -155,11 +358,13 @@
       "path": "graph/graph.go",
       "metadata": {
         "doc": "NodesByFile returns all nodes belonging to a specific file path.",
+        "end_line": "129",
         "file": "graph.go",
         "package": "graph",
         "package_path": "github.com/cridiv/codelens/graph",
         "receiver": "Graph",
-        "signature": "func (Graph) NodesByFile(...)"
+        "signature": "func (Graph) NodesByFile(filePath string) []Node",
+        "start_line": "121"
       }
     },
     {
@@ -169,11 +374,13 @@
       "path": "graph/graph.go",
       "metadata": {
         "doc": "NodesByPackage returns all nodes belonging to a specific package name.",
+        "end_line": "140",
         "file": "graph.go",
         "package": "graph",
         "package_path": "github.com/cridiv/codelens/graph",
         "receiver": "Graph",
-        "signature": "func (Graph) NodesByPackage(...)"
+        "signature": "func (Graph) NodesByPackage(pkg string) []Node",
+        "start_line": "132"
       }
     },
     {
@@ -183,11 +390,13 @@
       "path": "graph/graph.go",
       "metadata": {
         "doc": "ToJSON serializes the Graph into pretty-printed JSON bytes.",
+        "end_line": "145",
         "file": "graph.go",
         "package": "graph",
         "package_path": "github.com/cridiv/codelens/graph",
         "receiver": "Graph",
-        "signature": "func (Graph) ToJSON(...)"
+        "signature": "func (Graph) ToJSON() ([]byte, error)",
+        "start_line": "143"
       }
     },
     {
@@ -197,10 +406,12 @@
       "path": "graph/graph.go",
       "metadata": {
         "doc": "FromJSON deserializes JSON bytes into a Graph.",
+        "end_line": "154",
         "file": "graph.go",
         "package": "graph",
         "package_path": "github.com/cridiv/codelens/graph",
-        "signature": "func FromJSON(...)"
+        "signature": "func FromJSON(data []byte) (*Graph, error)",
+        "start_line": "148"
       }
     },
     {
@@ -230,11 +441,22 @@
       "path": "analyzer/analyzer.go",
       "metadata": {
         "doc": "Analyzer represents a language-agnostic static analyzer interface.",
+        "end_line": "8",
         "file": "analyzer.go",
+        "members": "[{\"name\":\"Analyze\",\"type\":\"func(repoPath string) (*graph.Graph, error)\",\"kind\":\"method\",\"isExported\":true}]",
         "package": "analyzer",
         "package_path": "github.com/cridiv/codelens/analyzer",
-        "signature": "type Analyzer interface"
-      }
+        "signature": "type Analyzer interface",
+        "start_line": "6"
+      },
+      "members": [
+        {
+          "name": "Analyze",
+          "type": "func(repoPath string) (*graph.Graph, error)",
+          "kind": "method",
+          "isExported": true
+        }
+      ]
     },
     {
       "id": "fn:github.com/cridiv/codelens/analyzer.Analyzer.Analyze",
@@ -247,7 +469,7 @@
         "package": "analyzer",
         "package_path": "github.com/cridiv/codelens/analyzer",
         "receiver": "Analyzer",
-        "signature": "Analyze(...)"
+        "signature": "Analyzefunc(repoPath string) (*graph.Graph, error)"
       }
     },
     {
@@ -277,11 +499,41 @@
       "path": "analyzer/golang/analyzer.go",
       "metadata": {
         "doc": "Analyzer implements static analysis for Go codebases.",
+        "end_line": "21",
         "file": "analyzer.go",
+        "members": "[{\"name\":\"Analyze\",\"type\":\"func(repoPath string) (*graph.Graph, error)\",\"kind\":\"method\",\"isExported\":true,\"description\":\"Analyze statically inspects a Go repository at repoPath and returns an architectural Graph.\"},{\"name\":\"extractDecls\",\"type\":\"func(g *graph.Graph, pkg *packages.Package, fileAST *ast.File, relFilePath string, structMethods map[string][]graph.Member)\",\"kind\":\"method\",\"description\":\"extractDecls walks top-level declarations in a file and adds type, interface,\\nand function nodes along with their containment edges and member lists.\"},{\"name\":\"extractCalls\",\"type\":\"func(g *graph.Graph, pkgs []*packages.Package, isLocalPkg func(string) bool)\",\"kind\":\"method\",\"description\":\"extractCalls resolves function call expressions to their callee declarations.\"},{\"name\":\"extractImplementationsAndReferences\",\"type\":\"func(g *graph.Graph, pkgs []*packages.Package, isLocalPkg func(string) bool)\",\"kind\":\"method\",\"description\":\"extractImplementationsAndReferences emits \\\"implements\\\" and \\\"references\\\" edges.\"}]",
         "package": "golang",
         "package_path": "github.com/cridiv/codelens/analyzer/golang",
-        "signature": "type Analyzer struct"
-      }
+        "signature": "type Analyzer struct",
+        "start_line": "21"
+      },
+      "members": [
+        {
+          "name": "Analyze",
+          "type": "func(repoPath string) (*graph.Graph, error)",
+          "kind": "method",
+          "isExported": true,
+          "description": "Analyze statically inspects a Go repository at repoPath and returns an architectural Graph."
+        },
+        {
+          "name": "extractDecls",
+          "type": "func(g *graph.Graph, pkg *packages.Package, fileAST *ast.File, relFilePath string, structMethods map[string][]graph.Member)",
+          "kind": "method",
+          "description": "extractDecls walks top-level declarations in a file and adds type, interface,\nand function nodes along with their containment edges and member lists."
+        },
+        {
+          "name": "extractCalls",
+          "type": "func(g *graph.Graph, pkgs []*packages.Package, isLocalPkg func(string) bool)",
+          "kind": "method",
+          "description": "extractCalls resolves function call expressions to their callee declarations."
+        },
+        {
+          "name": "extractImplementationsAndReferences",
+          "type": "func(g *graph.Graph, pkgs []*packages.Package, isLocalPkg func(string) bool)",
+          "kind": "method",
+          "description": "extractImplementationsAndReferences emits \"implements\" and \"references\" edges."
+        }
+      ]
     },
     {
       "id": "fn:github.com/cridiv/codelens/analyzer/golang.New",
@@ -290,10 +542,12 @@
       "path": "analyzer/golang/analyzer.go",
       "metadata": {
         "doc": "New creates a new Go static analyzer.",
+        "end_line": "26",
         "file": "analyzer.go",
         "package": "golang",
         "package_path": "github.com/cridiv/codelens/analyzer/golang",
-        "signature": "func New(...)"
+        "signature": "func New() *Analyzer",
+        "start_line": "24"
       }
     },
     {
@@ -303,11 +557,58 @@
       "path": "analyzer/golang/analyzer.go",
       "metadata": {
         "doc": "Analyze statically inspects a Go repository at repoPath and returns an architectural Graph.",
+        "end_line": "172",
         "file": "analyzer.go",
         "package": "golang",
         "package_path": "github.com/cridiv/codelens/analyzer/golang",
         "receiver": "Analyzer",
-        "signature": "func (Analyzer) Analyze(...)"
+        "signature": "func (Analyzer) Analyze(repoPath string) (*graph.Graph, error)",
+        "start_line": "32"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/analyzer/golang.nodePos",
+      "kind": "function",
+      "name": "nodePos",
+      "path": "analyzer/golang/analyzer.go",
+      "metadata": {
+        "doc": "nodePos returns start_line and end_line strings from an AST node.",
+        "end_line": "182",
+        "file": "analyzer.go",
+        "package": "golang",
+        "package_path": "github.com/cridiv/codelens/analyzer/golang",
+        "signature": "func nodePos(fset *token.FileSet, n ast.Node) (startLine string, endLine string)",
+        "start_line": "175"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/analyzer/golang.formatAST",
+      "kind": "function",
+      "name": "formatAST",
+      "path": "analyzer/golang/analyzer.go",
+      "metadata": {
+        "doc": "formatAST returns the formatted source code string of any AST node.",
+        "end_line": "194",
+        "file": "analyzer.go",
+        "package": "golang",
+        "package_path": "github.com/cridiv/codelens/analyzer/golang",
+        "signature": "func formatAST(fset *token.FileSet, n ast.Node) string",
+        "start_line": "185"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/analyzer/golang.isExportedName",
+      "kind": "function",
+      "name": "isExportedName",
+      "path": "analyzer/golang/analyzer.go",
+      "metadata": {
+        "doc": "isExportedName checks if a symbol begins with an uppercase letter.",
+        "end_line": "202",
+        "file": "analyzer.go",
+        "package": "golang",
+        "package_path": "github.com/cridiv/codelens/analyzer/golang",
+        "signature": "func isExportedName(name string) bool",
+        "start_line": "197"
       }
     },
     {
@@ -316,12 +617,14 @@
       "name": "extractDecls",
       "path": "analyzer/golang/analyzer.go",
       "metadata": {
-        "doc": "extractDecls walks top-level declarations in a file and adds type, interface,\nand function nodes along with their containment edges.",
+        "doc": "extractDecls walks top-level declarations in a file and adds type, interface,\nand function nodes along with their containment edges and member lists.",
+        "end_line": "500",
         "file": "analyzer.go",
         "package": "golang",
         "package_path": "github.com/cridiv/codelens/analyzer/golang",
         "receiver": "Analyzer",
-        "signature": "func (Analyzer) extractDecls(...)"
+        "signature": "func (Analyzer) extractDecls(g *graph.Graph, pkg *packages.Package, fileAST *ast.File, relFilePath string, structMethods map[string][]graph.Member)",
+        "start_line": "206"
       }
     },
     {
@@ -330,11 +633,13 @@
       "name": "receiverTypeName",
       "path": "analyzer/golang/analyzer.go",
       "metadata": {
-        "doc": "receiverTypeName extracts the base type name from a receiver expression,\nhandling both value receivers (T) and pointer receivers (*T).",
+        "doc": "receiverTypeName extracts the base type name from a receiver expression.",
+        "end_line": "514",
         "file": "analyzer.go",
         "package": "golang",
         "package_path": "github.com/cridiv/codelens/analyzer/golang",
-        "signature": "func receiverTypeName(...)"
+        "signature": "func receiverTypeName(expr ast.Expr) string",
+        "start_line": "503"
       }
     },
     {
@@ -343,12 +648,14 @@
       "name": "extractCalls",
       "path": "analyzer/golang/analyzer.go",
       "metadata": {
-        "doc": "extractCalls resolves function call expressions to their callee declarations\nusing the type checker info and emits directed \"calls\" edges.",
+        "doc": "extractCalls resolves function call expressions to their callee declarations.",
+        "end_line": "588",
         "file": "analyzer.go",
         "package": "golang",
         "package_path": "github.com/cridiv/codelens/analyzer/golang",
         "receiver": "Analyzer",
-        "signature": "func (Analyzer) extractCalls(...)"
+        "signature": "func (Analyzer) extractCalls(g *graph.Graph, pkgs []*packages.Package, isLocalPkg func(string) bool)",
+        "start_line": "517"
       }
     },
     {
@@ -357,11 +664,13 @@
       "name": "typeToNamed",
       "path": "analyzer/golang/analyzer.go",
       "metadata": {
-        "doc": "typeToNamed unwraps a pointer and returns the underlying named type's name,\nor the empty string if the type is not a named type.",
+        "doc": "typeToNamed unwraps a pointer and returns the underlying named type's name.",
+        "end_line": "599",
         "file": "analyzer.go",
         "package": "golang",
         "package_path": "github.com/cridiv/codelens/analyzer/golang",
-        "signature": "func typeToNamed(...)"
+        "signature": "func typeToNamed(t types.Type) string",
+        "start_line": "591"
       }
     },
     {
@@ -370,12 +679,14 @@
       "name": "extractImplementationsAndReferences",
       "path": "analyzer/golang/analyzer.go",
       "metadata": {
-        "doc": "extractImplementationsAndReferences emits \"implements\" edges (struct → interface)\nand \"references\" edges (struct → field type) for all local named types.",
+        "doc": "extractImplementationsAndReferences emits \"implements\" and \"references\" edges.",
+        "end_line": "690",
         "file": "analyzer.go",
         "package": "golang",
         "package_path": "github.com/cridiv/codelens/analyzer/golang",
         "receiver": "Analyzer",
-        "signature": "func (Analyzer) extractImplementationsAndReferences(...)"
+        "signature": "func (Analyzer) extractImplementationsAndReferences(g *graph.Graph, pkgs []*packages.Package, isLocalPkg func(string) bool)",
+        "start_line": "602"
       }
     },
     {
@@ -405,11 +716,22 @@
       "path": "llm/llm.go",
       "metadata": {
         "doc": "LLMClient is the language-model abstraction used by the server.\nImplementations live in llm/ollama, llm/openai, and llm/anthropic.\n\nExplain generates a layered architectural explanation for a single node,\nusing the node's source code and its immediate subgraph as context.",
+        "end_line": "16",
         "file": "llm.go",
+        "members": "[{\"name\":\"Explain\",\"type\":\"func(ctx context.Context, node graph.Node, subgraph graph.Graph, sourceCode string) (string, error)\",\"kind\":\"method\",\"isExported\":true}]",
         "package": "llm",
         "package_path": "github.com/cridiv/codelens/llm",
-        "signature": "type LLMClient interface"
-      }
+        "signature": "type LLMClient interface",
+        "start_line": "14"
+      },
+      "members": [
+        {
+          "name": "Explain",
+          "type": "func(ctx context.Context, node graph.Node, subgraph graph.Graph, sourceCode string) (string, error)",
+          "kind": "method",
+          "isExported": true
+        }
+      ]
     },
     {
       "id": "fn:github.com/cridiv/codelens/llm.LLMClient.Explain",
@@ -422,7 +744,7 @@
         "package": "llm",
         "package_path": "github.com/cridiv/codelens/llm",
         "receiver": "LLMClient",
-        "signature": "Explain(...)"
+        "signature": "Explainfunc(ctx context.Context, node graph.Node, subgraph graph.Graph, sourceCode string) (string, error)"
       }
     },
     {
@@ -452,11 +774,43 @@
       "path": "llm/openai/client.go",
       "metadata": {
         "doc": "Client calls any OpenAI-compatible chat completions endpoint.",
+        "end_line": "36",
         "file": "client.go",
+        "members": "[{\"name\":\"baseURL\",\"type\":\"string\",\"kind\":\"field\"},{\"name\":\"apiKey\",\"type\":\"string\",\"kind\":\"field\"},{\"name\":\"model\",\"type\":\"string\",\"kind\":\"field\"},{\"name\":\"httpClient\",\"type\":\"*http.Client\",\"kind\":\"field\"},{\"name\":\"Explain\",\"type\":\"func(ctx context.Context, node graph.Node, subgraph graph.Graph, sourceCode string) (string, error)\",\"kind\":\"method\",\"isExported\":true,\"description\":\"Explain generates a simple, beginner-friendly explanation for the given node.\"}]",
         "package": "openai",
         "package_path": "github.com/cridiv/codelens/llm/openai",
-        "signature": "type Client struct"
-      }
+        "signature": "type Client struct",
+        "start_line": "31"
+      },
+      "members": [
+        {
+          "name": "baseURL",
+          "type": "string",
+          "kind": "field"
+        },
+        {
+          "name": "apiKey",
+          "type": "string",
+          "kind": "field"
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "kind": "field"
+        },
+        {
+          "name": "httpClient",
+          "type": "*http.Client",
+          "kind": "field"
+        },
+        {
+          "name": "Explain",
+          "type": "func(ctx context.Context, node graph.Node, subgraph graph.Graph, sourceCode string) (string, error)",
+          "kind": "method",
+          "isExported": true,
+          "description": "Explain generates a simple, beginner-friendly explanation for the given node."
+        }
+      ]
     },
     {
       "id": "type:github.com/cridiv/codelens/llm/openai.Options",
@@ -465,11 +819,42 @@
       "path": "llm/openai/client.go",
       "metadata": {
         "doc": "Options configures the OpenAI-compatible client.",
+        "end_line": "47",
         "file": "client.go",
+        "members": "[{\"name\":\"BaseURL\",\"type\":\"string\",\"kind\":\"field\",\"isExported\":true,\"description\":\"defaults to NVIDIANIMBaseURL\"},{\"name\":\"APIKey\",\"type\":\"string\",\"kind\":\"field\",\"isExported\":true},{\"name\":\"Model\",\"type\":\"string\",\"kind\":\"field\",\"isExported\":true,\"description\":\"defaults to DefaultModel\"},{\"name\":\"Timeout\",\"type\":\"time.Duration\",\"kind\":\"field\",\"isExported\":true}]",
         "package": "openai",
         "package_path": "github.com/cridiv/codelens/llm/openai",
-        "signature": "type Options struct"
-      }
+        "signature": "type Options struct",
+        "start_line": "42"
+      },
+      "members": [
+        {
+          "name": "BaseURL",
+          "type": "string",
+          "kind": "field",
+          "isExported": true,
+          "description": "defaults to NVIDIANIMBaseURL"
+        },
+        {
+          "name": "APIKey",
+          "type": "string",
+          "kind": "field",
+          "isExported": true
+        },
+        {
+          "name": "Model",
+          "type": "string",
+          "kind": "field",
+          "isExported": true,
+          "description": "defaults to DefaultModel"
+        },
+        {
+          "name": "Timeout",
+          "type": "time.Duration",
+          "kind": "field",
+          "isExported": true
+        }
+      ]
     },
     {
       "id": "fn:github.com/cridiv/codelens/llm/openai.New",
@@ -478,10 +863,12 @@
       "path": "llm/openai/client.go",
       "metadata": {
         "doc": "New creates a new OpenAI-compatible LLM client.",
+        "end_line": "84",
         "file": "client.go",
         "package": "openai",
         "package_path": "github.com/cridiv/codelens/llm/openai",
-        "signature": "func New(...)"
+        "signature": "func New(opts Options) *Client",
+        "start_line": "50"
       }
     },
     {
@@ -491,11 +878,28 @@
       "path": "llm/openai/client.go",
       "metadata": {
         "doc": "",
+        "end_line": "91",
         "file": "client.go",
+        "members": "[{\"name\":\"Role\",\"type\":\"string\",\"kind\":\"field\",\"isExported\":true},{\"name\":\"Content\",\"type\":\"string\",\"kind\":\"field\",\"isExported\":true}]",
         "package": "openai",
         "package_path": "github.com/cridiv/codelens/llm/openai",
-        "signature": "type chatMessage struct"
-      }
+        "signature": "type chatMessage struct",
+        "start_line": "88"
+      },
+      "members": [
+        {
+          "name": "Role",
+          "type": "string",
+          "kind": "field",
+          "isExported": true
+        },
+        {
+          "name": "Content",
+          "type": "string",
+          "kind": "field",
+          "isExported": true
+        }
+      ]
     },
     {
       "id": "type:github.com/cridiv/codelens/llm/openai.chatRequest",
@@ -504,11 +908,40 @@
       "path": "llm/openai/client.go",
       "metadata": {
         "doc": "",
+        "end_line": "98",
         "file": "client.go",
+        "members": "[{\"name\":\"Model\",\"type\":\"string\",\"kind\":\"field\",\"isExported\":true},{\"name\":\"Messages\",\"type\":\"[]chatMessage\",\"kind\":\"field\",\"isExported\":true},{\"name\":\"Temperature\",\"type\":\"float64\",\"kind\":\"field\",\"isExported\":true},{\"name\":\"MaxTokens\",\"type\":\"int\",\"kind\":\"field\",\"isExported\":true}]",
         "package": "openai",
         "package_path": "github.com/cridiv/codelens/llm/openai",
-        "signature": "type chatRequest struct"
-      }
+        "signature": "type chatRequest struct",
+        "start_line": "93"
+      },
+      "members": [
+        {
+          "name": "Model",
+          "type": "string",
+          "kind": "field",
+          "isExported": true
+        },
+        {
+          "name": "Messages",
+          "type": "[]chatMessage",
+          "kind": "field",
+          "isExported": true
+        },
+        {
+          "name": "Temperature",
+          "type": "float64",
+          "kind": "field",
+          "isExported": true
+        },
+        {
+          "name": "MaxTokens",
+          "type": "int",
+          "kind": "field",
+          "isExported": true
+        }
+      ]
     },
     {
       "id": "type:github.com/cridiv/codelens/llm/openai.chatResponse",
@@ -517,11 +950,28 @@
       "path": "llm/openai/client.go",
       "metadata": {
         "doc": "",
+        "end_line": "109",
         "file": "client.go",
+        "members": "[{\"name\":\"Choices\",\"type\":\"[]struct {\\n\\tMessage struct {\\n\\t\\tContent string `json:\\\"content\\\"`\\n\\t} `json:\\\"message\\\"`\\n}\",\"kind\":\"field\",\"isExported\":true},{\"name\":\"Error\",\"type\":\"*struct {\\n\\tMessage string `json:\\\"message\\\"`\\n}\",\"kind\":\"field\",\"isExported\":true}]",
         "package": "openai",
         "package_path": "github.com/cridiv/codelens/llm/openai",
-        "signature": "type chatResponse struct"
-      }
+        "signature": "type chatResponse struct",
+        "start_line": "100"
+      },
+      "members": [
+        {
+          "name": "Choices",
+          "type": "[]struct {\n\tMessage struct {\n\t\tContent string `json:\"content\"`\n\t} `json:\"message\"`\n}",
+          "kind": "field",
+          "isExported": true
+        },
+        {
+          "name": "Error",
+          "type": "*struct {\n\tMessage string `json:\"message\"`\n}",
+          "kind": "field",
+          "isExported": true
+        }
+      ]
     },
     {
       "id": "fn:github.com/cridiv/codelens/llm/openai.Client.Explain",
@@ -529,12 +979,14 @@
       "name": "Explain",
       "path": "llm/openai/client.go",
       "metadata": {
-        "doc": "Explain generates a layered architectural explanation for the given node.",
+        "doc": "Explain generates a simple, beginner-friendly explanation for the given node.",
+        "end_line": "166",
         "file": "client.go",
         "package": "openai",
         "package_path": "github.com/cridiv/codelens/llm/openai",
         "receiver": "Client",
-        "signature": "func (Client) Explain(...)"
+        "signature": "func (Client) Explain(ctx context.Context, node graph.Node, subgraph graph.Graph, sourceCode string) (string, error)",
+        "start_line": "112"
       }
     },
     {
@@ -544,10 +996,12 @@
       "path": "llm/openai/client.go",
       "metadata": {
         "doc": "",
+        "end_line": "227",
         "file": "client.go",
         "package": "openai",
         "package_path": "github.com/cridiv/codelens/llm/openai",
-        "signature": "func buildPrompt(...)"
+        "signature": "func buildPrompt(node graph.Node, subgraph graph.Graph, sourceCode string) string",
+        "start_line": "174"
       }
     },
     {
@@ -557,10 +1011,12 @@
       "path": "llm/openai/client.go",
       "metadata": {
         "doc": "",
+        "end_line": "236",
         "file": "client.go",
         "package": "openai",
         "package_path": "github.com/cridiv/codelens/llm/openai",
-        "signature": "func nodeByID(...)"
+        "signature": "func nodeByID(g graph.Graph, id string) (graph.Node, bool)",
+        "start_line": "229"
       }
     },
     {
@@ -590,10 +1046,12 @@
       "path": "server/handlers.go",
       "metadata": {
         "doc": "writeJSON encodes v as JSON and writes it to w with the given status code.",
+        "end_line": "22",
         "file": "handlers.go",
         "package": "server",
         "package_path": "github.com/cridiv/codelens/server",
-        "signature": "func writeJSON(...)"
+        "signature": "func writeJSON(w http.ResponseWriter, status int, v any)",
+        "start_line": "15"
       }
     },
     {
@@ -603,10 +1061,12 @@
       "path": "server/handlers.go",
       "metadata": {
         "doc": "writeError writes a { \"error\": \"...\" } JSON body with the given status code.",
+        "end_line": "27",
         "file": "handlers.go",
         "package": "server",
         "package_path": "github.com/cridiv/codelens/server",
-        "signature": "func writeError(...)"
+        "signature": "func writeError(w http.ResponseWriter, status int, msg string)",
+        "start_line": "25"
       }
     },
     {
@@ -616,11 +1076,13 @@
       "path": "server/handlers.go",
       "metadata": {
         "doc": "handleGraph returns the full graph as JSON.\n\n\tResponse: graph.Graph",
+        "end_line": "40",
         "file": "handlers.go",
         "package": "server",
         "package_path": "github.com/cridiv/codelens/server",
         "receiver": "Server",
-        "signature": "func (Server) handleGraph(...)"
+        "signature": "func (Server) handleGraph(w http.ResponseWriter, r *http.Request)",
+        "start_line": "34"
       }
     },
     {
@@ -630,11 +1092,13 @@
       "path": "server/handlers.go",
       "metadata": {
         "doc": "handleNode dispatches between single-node and neighbors requests based on\nwhether the path ends with \"/neighbors\".\n\n\tGET /api/node/:id           → graph.Node\n\tGET /api/node/:id/neighbors → { nodes: []Node, edges: []Edge }",
+        "end_line": "104",
         "file": "handlers.go",
         "package": "server",
         "package_path": "github.com/cridiv/codelens/server",
         "receiver": "Server",
-        "signature": "func (Server) handleNode(...)"
+        "signature": "func (Server) handleNode(w http.ResponseWriter, r *http.Request)",
+        "start_line": "49"
       }
     },
     {
@@ -644,11 +1108,22 @@
       "path": "server/handlers.go",
       "metadata": {
         "doc": "explainRequest is the JSON body for the explain endpoint.",
+        "end_line": "111",
         "file": "handlers.go",
+        "members": "[{\"name\":\"NodeID\",\"type\":\"string\",\"kind\":\"field\",\"isExported\":true}]",
         "package": "server",
         "package_path": "github.com/cridiv/codelens/server",
-        "signature": "type explainRequest struct"
-      }
+        "signature": "type explainRequest struct",
+        "start_line": "109"
+      },
+      "members": [
+        {
+          "name": "NodeID",
+          "type": "string",
+          "kind": "field",
+          "isExported": true
+        }
+      ]
     },
     {
       "id": "fn:github.com/cridiv/codelens/server.Server.handleExplain",
@@ -657,11 +1132,45 @@
       "path": "server/handlers.go",
       "metadata": {
         "doc": "handleExplain calls the LLM to generate an architectural explanation for a\nnode and returns the result as a JSON string.\n\n\tRequest:  { \"nodeId\": \"fn:github.com/cridiv/codelens/server.handleExplain\" }\n\tResponse: { \"explanation\": \"...\" }",
+        "end_line": "174",
         "file": "handlers.go",
         "package": "server",
         "package_path": "github.com/cridiv/codelens/server",
         "receiver": "Server",
-        "signature": "func (Server) handleExplain(...)"
+        "signature": "func (Server) handleExplain(w http.ResponseWriter, r *http.Request)",
+        "start_line": "118"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/server.Server.persistExplanationCache",
+      "kind": "function",
+      "name": "persistExplanationCache",
+      "path": "server/handlers.go",
+      "metadata": {
+        "doc": "persistExplanationCache writes the full in-memory explanation cache to disk.",
+        "end_line": "197",
+        "file": "handlers.go",
+        "package": "server",
+        "package_path": "github.com/cridiv/codelens/server",
+        "receiver": "Server",
+        "signature": "func (Server) persistExplanationCache()",
+        "start_line": "177"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/server.Server.readNodeSourceCode",
+      "kind": "function",
+      "name": "readNodeSourceCode",
+      "path": "server/handlers.go",
+      "metadata": {
+        "doc": "readNodeSourceCode reads the real source code from disk for the targeted entity,\nreturning only the relevant declaration without dumping unrelated code.",
+        "end_line": "253",
+        "file": "handlers.go",
+        "package": "server",
+        "package_path": "github.com/cridiv/codelens/server",
+        "receiver": "Server",
+        "signature": "func (Server) readNodeSourceCode(n graph.Node) string",
+        "start_line": "201"
       }
     },
     {
@@ -670,11 +1179,13 @@
       "name": "formatNodeAsSourceHint",
       "path": "server/handlers.go",
       "metadata": {
-        "doc": "formatNodeAsSourceHint produces a human-readable summary of a node's metadata\nto substitute for real source code until disk-reading is implemented.",
+        "doc": "formatNodeAsSourceHint produces a human-readable summary of a node's metadata.",
+        "end_line": "269",
         "file": "handlers.go",
         "package": "server",
         "package_path": "github.com/cridiv/codelens/server",
-        "signature": "func formatNodeAsSourceHint(...)"
+        "signature": "func formatNodeAsSourceHint(n graph.Node) string",
+        "start_line": "256"
       }
     },
     {
@@ -694,11 +1205,97 @@
       "path": "server/server.go",
       "metadata": {
         "doc": "Server wraps an HTTP server with all its dependencies.",
+        "end_line": "36",
         "file": "server.go",
+        "members": "[{\"name\":\"graph\",\"type\":\"*graph.Graph\",\"kind\":\"field\"},{\"name\":\"llm\",\"type\":\"llm.LLMClient\",\"kind\":\"field\",\"description\":\"may be nil when no provider is configured\"},{\"name\":\"httpSrv\",\"type\":\"*http.Server\",\"kind\":\"field\"},{\"name\":\"uiFiles\",\"type\":\"fs.FS\",\"kind\":\"field\"},{\"name\":\"repoPath\",\"type\":\"string\",\"kind\":\"field\"},{\"name\":\"verbose\",\"type\":\"bool\",\"kind\":\"field\"},{\"name\":\"explainCache\",\"type\":\"sync.Map\",\"kind\":\"field\",\"description\":\"map[string]string (nodeID -\\u003e explanation)\"},{\"name\":\"handleGraph\",\"type\":\"func(w http.ResponseWriter, r *http.Request)\",\"kind\":\"method\",\"description\":\"handleGraph returns the full graph as JSON.\\n\\n\\tResponse: graph.Graph\"},{\"name\":\"handleNode\",\"type\":\"func(w http.ResponseWriter, r *http.Request)\",\"kind\":\"method\",\"description\":\"handleNode dispatches between single-node and neighbors requests based on\\nwhether the path ends with \\\"/neighbors\\\".\\n\\n\\tGET /api/node/:id           → graph.Node\\n\\tGET /api/node/:id/neighbors → { nodes: []Node, edges: []Edge }\"},{\"name\":\"handleExplain\",\"type\":\"func(w http.ResponseWriter, r *http.Request)\",\"kind\":\"method\",\"description\":\"handleExplain calls the LLM to generate an architectural explanation for a\\nnode and returns the result as a JSON string.\\n\\n\\tRequest:  { \\\"nodeId\\\": \\\"fn:github.com/cridiv/codelens/server.handleExplain\\\" }\\n\\tResponse: { \\\"explanation\\\": \\\"...\\\" }\"},{\"name\":\"persistExplanationCache\",\"type\":\"func()\",\"kind\":\"method\",\"description\":\"persistExplanationCache writes the full in-memory explanation cache to disk.\"},{\"name\":\"readNodeSourceCode\",\"type\":\"func(n graph.Node) string\",\"kind\":\"method\",\"description\":\"readNodeSourceCode reads the real source code from disk for the targeted entity,\\nreturning only the relevant declaration without dumping unrelated code.\"},{\"name\":\"ServeHTTP\",\"type\":\"func(w http.ResponseWriter, r *http.Request)\",\"kind\":\"method\",\"isExported\":true,\"description\":\"ServeHTTP implements http.Handler, allowing the Server to be used directly\\nin tests with httptest.NewRecorder without binding to a real port.\"},{\"name\":\"Start\",\"type\":\"func(ctx context.Context) error\",\"kind\":\"method\",\"isExported\":true,\"description\":\"Start begins listening. It blocks until the context is cancelled.\"}]",
         "package": "server",
         "package_path": "github.com/cridiv/codelens/server",
-        "signature": "type Server struct"
-      }
+        "signature": "type Server struct",
+        "start_line": "28"
+      },
+      "members": [
+        {
+          "name": "graph",
+          "type": "*graph.Graph",
+          "kind": "field"
+        },
+        {
+          "name": "llm",
+          "type": "llm.LLMClient",
+          "kind": "field",
+          "description": "may be nil when no provider is configured"
+        },
+        {
+          "name": "httpSrv",
+          "type": "*http.Server",
+          "kind": "field"
+        },
+        {
+          "name": "uiFiles",
+          "type": "fs.FS",
+          "kind": "field"
+        },
+        {
+          "name": "repoPath",
+          "type": "string",
+          "kind": "field"
+        },
+        {
+          "name": "verbose",
+          "type": "bool",
+          "kind": "field"
+        },
+        {
+          "name": "explainCache",
+          "type": "sync.Map",
+          "kind": "field",
+          "description": "map[string]string (nodeID -\u003e explanation)"
+        },
+        {
+          "name": "handleGraph",
+          "type": "func(w http.ResponseWriter, r *http.Request)",
+          "kind": "method",
+          "description": "handleGraph returns the full graph as JSON.\n\n\tResponse: graph.Graph"
+        },
+        {
+          "name": "handleNode",
+          "type": "func(w http.ResponseWriter, r *http.Request)",
+          "kind": "method",
+          "description": "handleNode dispatches between single-node and neighbors requests based on\nwhether the path ends with \"/neighbors\".\n\n\tGET /api/node/:id           → graph.Node\n\tGET /api/node/:id/neighbors → { nodes: []Node, edges: []Edge }"
+        },
+        {
+          "name": "handleExplain",
+          "type": "func(w http.ResponseWriter, r *http.Request)",
+          "kind": "method",
+          "description": "handleExplain calls the LLM to generate an architectural explanation for a\nnode and returns the result as a JSON string.\n\n\tRequest:  { \"nodeId\": \"fn:github.com/cridiv/codelens/server.handleExplain\" }\n\tResponse: { \"explanation\": \"...\" }"
+        },
+        {
+          "name": "persistExplanationCache",
+          "type": "func()",
+          "kind": "method",
+          "description": "persistExplanationCache writes the full in-memory explanation cache to disk."
+        },
+        {
+          "name": "readNodeSourceCode",
+          "type": "func(n graph.Node) string",
+          "kind": "method",
+          "description": "readNodeSourceCode reads the real source code from disk for the targeted entity,\nreturning only the relevant declaration without dumping unrelated code."
+        },
+        {
+          "name": "ServeHTTP",
+          "type": "func(w http.ResponseWriter, r *http.Request)",
+          "kind": "method",
+          "isExported": true,
+          "description": "ServeHTTP implements http.Handler, allowing the Server to be used directly\nin tests with httptest.NewRecorder without binding to a real port."
+        },
+        {
+          "name": "Start",
+          "type": "func(ctx context.Context) error",
+          "kind": "method",
+          "isExported": true,
+          "description": "Start begins listening. It blocks until the context is cancelled."
+        }
+      ]
     },
     {
       "id": "type:github.com/cridiv/codelens/server.Options",
@@ -707,11 +1304,55 @@
       "path": "server/server.go",
       "metadata": {
         "doc": "Options configures a Server instance.",
+        "end_line": "46",
         "file": "server.go",
+        "members": "[{\"name\":\"Port\",\"type\":\"int\",\"kind\":\"field\",\"isExported\":true},{\"name\":\"Graph\",\"type\":\"*graph.Graph\",\"kind\":\"field\",\"isExported\":true},{\"name\":\"LLM\",\"type\":\"llm.LLMClient\",\"kind\":\"field\",\"isExported\":true,\"description\":\"optional\"},{\"name\":\"UIFiles\",\"type\":\"fs.FS\",\"kind\":\"field\",\"isExported\":true,\"description\":\"embedded ui/dist — pass nil to skip UI serving\"},{\"name\":\"RepoPath\",\"type\":\"string\",\"kind\":\"field\",\"isExported\":true,\"description\":\"root directory of the analyzed codebase on disk\"},{\"name\":\"Verbose\",\"type\":\"bool\",\"kind\":\"field\",\"isExported\":true}]",
         "package": "server",
         "package_path": "github.com/cridiv/codelens/server",
-        "signature": "type Options struct"
-      }
+        "signature": "type Options struct",
+        "start_line": "39"
+      },
+      "members": [
+        {
+          "name": "Port",
+          "type": "int",
+          "kind": "field",
+          "isExported": true
+        },
+        {
+          "name": "Graph",
+          "type": "*graph.Graph",
+          "kind": "field",
+          "isExported": true
+        },
+        {
+          "name": "LLM",
+          "type": "llm.LLMClient",
+          "kind": "field",
+          "isExported": true,
+          "description": "optional"
+        },
+        {
+          "name": "UIFiles",
+          "type": "fs.FS",
+          "kind": "field",
+          "isExported": true,
+          "description": "embedded ui/dist — pass nil to skip UI serving"
+        },
+        {
+          "name": "RepoPath",
+          "type": "string",
+          "kind": "field",
+          "isExported": true,
+          "description": "root directory of the analyzed codebase on disk"
+        },
+        {
+          "name": "Verbose",
+          "type": "bool",
+          "kind": "field",
+          "isExported": true
+        }
+      ]
     },
     {
       "id": "fn:github.com/cridiv/codelens/server.New",
@@ -720,10 +1361,12 @@
       "path": "server/server.go",
       "metadata": {
         "doc": "New creates a configured Server and registers all routes.",
+        "end_line": "98",
         "file": "server.go",
         "package": "server",
         "package_path": "github.com/cridiv/codelens/server",
-        "signature": "func New(...)"
+        "signature": "func New(opts Options) *Server",
+        "start_line": "49"
       }
     },
     {
@@ -733,11 +1376,13 @@
       "path": "server/server.go",
       "metadata": {
         "doc": "ServeHTTP implements http.Handler, allowing the Server to be used directly\nin tests with httptest.NewRecorder without binding to a real port.",
+        "end_line": "104",
         "file": "server.go",
         "package": "server",
         "package_path": "github.com/cridiv/codelens/server",
         "receiver": "Server",
-        "signature": "func (Server) ServeHTTP(...)"
+        "signature": "func (Server) ServeHTTP(w http.ResponseWriter, r *http.Request)",
+        "start_line": "102"
       }
     },
     {
@@ -747,11 +1392,13 @@
       "path": "server/server.go",
       "metadata": {
         "doc": "Start begins listening. It blocks until the context is cancelled.",
+        "end_line": "130",
         "file": "server.go",
         "package": "server",
         "package_path": "github.com/cridiv/codelens/server",
         "receiver": "Server",
-        "signature": "func (Server) Start(...)"
+        "signature": "func (Server) Start(ctx context.Context) error",
+        "start_line": "107"
       }
     },
     {
@@ -761,10 +1408,12 @@
       "path": "server/server.go",
       "metadata": {
         "doc": "loggingMiddleware logs every request when verbose is true.",
+        "end_line": "142",
         "file": "server.go",
         "package": "server",
         "package_path": "github.com/cridiv/codelens/server",
-        "signature": "func loggingMiddleware(...)"
+        "signature": "func loggingMiddleware(verbose bool, next http.Handler) http.Handler",
+        "start_line": "133"
       }
     },
     {
@@ -774,10 +1423,12 @@
       "path": "server/server.go",
       "metadata": {
         "doc": "corsMiddleware adds permissive CORS headers for local development.\nThe UI dev server runs on a different port from the Go server, so these\nare required during development. In production the Go server also serves\nthe UI, making CORS irrelevant, but the headers are harmless.",
+        "end_line": "159",
         "file": "server.go",
         "package": "server",
         "package_path": "github.com/cridiv/codelens/server",
-        "signature": "func corsMiddleware(...)"
+        "signature": "func corsMiddleware(next http.Handler) http.Handler",
+        "start_line": "148"
       }
     },
     {
@@ -787,10 +1438,12 @@
       "path": "server/server.go",
       "metadata": {
         "doc": "spaHandler wraps a file server to support single-page applications.\nIf the requested path doesn't correspond to an existing file, it serves\nindex.html so that client-side routing can take over.",
+        "end_line": "185",
         "file": "server.go",
         "package": "server",
         "package_path": "github.com/cridiv/codelens/server",
-        "signature": "func spaHandler(...)"
+        "signature": "func spaHandler(root fs.FS, fileServer http.Handler) http.Handler",
+        "start_line": "164"
       }
     },
     {
@@ -820,10 +1473,12 @@
       "path": "cmd/codeatlas/browser.go",
       "metadata": {
         "doc": "openBrowser launches the default browser at url.\nFailures are non-fatal — the user can always open the URL manually.",
+        "end_line": "33",
         "file": "browser.go",
         "package": "main",
         "package_path": "github.com/cridiv/codelens/cmd/codeatlas",
-        "signature": "func openBrowser(...)"
+        "signature": "func openBrowser(url string)",
+        "start_line": "11"
       }
     },
     {
@@ -843,10 +1498,12 @@
       "path": "cmd/codeatlas/main.go",
       "metadata": {
         "doc": "",
+        "end_line": "120",
         "file": "main.go",
         "package": "main",
         "package_path": "github.com/cridiv/codelens/cmd/codeatlas",
-        "signature": "func main(...)"
+        "signature": "func main()",
+        "start_line": "27"
       }
     },
     {
@@ -856,10 +1513,12 @@
       "path": "cmd/codeatlas/main.go",
       "metadata": {
         "doc": "buildLLMClient selects and constructs an LLM client based on the provider flag.",
+        "end_line": "182",
         "file": "main.go",
         "package": "main",
         "package_path": "github.com/cridiv/codelens/cmd/codeatlas",
-        "signature": "func buildLLMClient(...)"
+        "signature": "func buildLLMClient(provider string, model string, baseURL string, apiKey string, verbose bool) *llmopenai.Client",
+        "start_line": "123"
       }
     },
     {
@@ -869,10 +1528,12 @@
       "path": "cmd/codeatlas/main.go",
       "metadata": {
         "doc": "loadGraph either reads a valid cache or re-runs the analyzer.",
+        "end_line": "215",
         "file": "main.go",
         "package": "main",
         "package_path": "github.com/cridiv/codelens/cmd/codeatlas",
-        "signature": "func loadGraph(...)"
+        "signature": "func loadGraph(absRepoPath string, useCache bool, verbose bool) (*graph.Graph, error)",
+        "start_line": "185"
       }
     },
     {
@@ -882,10 +1543,12 @@
       "path": "cmd/codeatlas/main.go",
       "metadata": {
         "doc": "tryReadCache returns the cached graph if the cache file is newer than any\n.go source file in the repo. Returns (nil, false) on any miss or error.",
+        "end_line": "267",
         "file": "main.go",
         "package": "main",
         "package_path": "github.com/cridiv/codelens/cmd/codeatlas",
-        "signature": "func tryReadCache(...)"
+        "signature": "func tryReadCache(cacheFile string, repoPath string, verbose bool) (*graph.Graph, bool)",
+        "start_line": "219"
       }
     },
     {
@@ -895,10 +1558,27 @@
       "path": "cmd/codeatlas/main.go",
       "metadata": {
         "doc": "writeCache serialises the graph to the cache file, creating parent dirs.",
+        "end_line": "282",
         "file": "main.go",
         "package": "main",
         "package_path": "github.com/cridiv/codelens/cmd/codeatlas",
-        "signature": "func writeCache(...)"
+        "signature": "func writeCache(cacheFile string, g *graph.Graph) error",
+        "start_line": "270"
+      }
+    },
+    {
+      "id": "fn:github.com/cridiv/codelens/cmd/codeatlas.findAPIKey",
+      "kind": "function",
+      "name": "findAPIKey",
+      "path": "cmd/codeatlas/main.go",
+      "metadata": {
+        "doc": "findAPIKey retrieves the API key with fallback precedence:\n1. Explicit CLI flag\n2. Process environment variables (MODEL_API_KEY, CODEATLAS_LLM_KEY, NVIDIA_API_KEY, OPENAI_API_KEY)\n3. .env file in the target repository directory\n4. .env file in the current working directory",
+        "end_line": "331",
+        "file": "main.go",
+        "package": "main",
+        "package_path": "github.com/cridiv/codelens/cmd/codeatlas",
+        "signature": "func findAPIKey(flagKey string, repoPath string) string",
+        "start_line": "289"
       }
     }
   ],
@@ -913,6 +1593,12 @@
       "id": "e-pkg:github.com/cridiv/codelens/graph-file:graph/graph.go-contains",
       "from": "pkg:github.com/cridiv/codelens/graph",
       "to": "file:graph/graph.go",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:graph/graph.go-type:github.com/cridiv/codelens/graph.Member-contains",
+      "from": "file:graph/graph.go",
+      "to": "type:github.com/cridiv/codelens/graph.Member",
       "kind": "contains"
     },
     {
@@ -1012,15 +1698,15 @@
       "kind": "contains"
     },
     {
-      "id": "e-pkg:github.com/cridiv/codelens/analyzer/golang-pkg:github.com/cridiv/codelens/analyzer-imports",
-      "from": "pkg:github.com/cridiv/codelens/analyzer/golang",
-      "to": "pkg:github.com/cridiv/codelens/analyzer",
-      "kind": "imports"
-    },
-    {
       "id": "e-pkg:github.com/cridiv/codelens/analyzer/golang-pkg:github.com/cridiv/codelens/graph-imports",
       "from": "pkg:github.com/cridiv/codelens/analyzer/golang",
       "to": "pkg:github.com/cridiv/codelens/graph",
+      "kind": "imports"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/analyzer/golang-pkg:github.com/cridiv/codelens/analyzer-imports",
+      "from": "pkg:github.com/cridiv/codelens/analyzer/golang",
+      "to": "pkg:github.com/cridiv/codelens/analyzer",
       "kind": "imports"
     },
     {
@@ -1045,6 +1731,24 @@
       "id": "e-type:github.com/cridiv/codelens/analyzer/golang.Analyzer-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze-contains",
       "from": "type:github.com/cridiv/codelens/analyzer/golang.Analyzer",
       "to": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:analyzer/golang/analyzer.go-fn:github.com/cridiv/codelens/analyzer/golang.nodePos-contains",
+      "from": "file:analyzer/golang/analyzer.go",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.nodePos",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:analyzer/golang/analyzer.go-fn:github.com/cridiv/codelens/analyzer/golang.formatAST-contains",
+      "from": "file:analyzer/golang/analyzer.go",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.formatAST",
+      "kind": "contains"
+    },
+    {
+      "id": "e-file:analyzer/golang/analyzer.go-fn:github.com/cridiv/codelens/analyzer/golang.isExportedName-contains",
+      "from": "file:analyzer/golang/analyzer.go",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.isExportedName",
       "kind": "contains"
     },
     {
@@ -1228,6 +1932,18 @@
       "kind": "contains"
     },
     {
+      "id": "e-type:github.com/cridiv/codelens/server.Server-fn:github.com/cridiv/codelens/server.Server.persistExplanationCache-contains",
+      "from": "type:github.com/cridiv/codelens/server.Server",
+      "to": "fn:github.com/cridiv/codelens/server.Server.persistExplanationCache",
+      "kind": "contains"
+    },
+    {
+      "id": "e-type:github.com/cridiv/codelens/server.Server-fn:github.com/cridiv/codelens/server.Server.readNodeSourceCode-contains",
+      "from": "type:github.com/cridiv/codelens/server.Server",
+      "to": "fn:github.com/cridiv/codelens/server.Server.readNodeSourceCode",
+      "kind": "contains"
+    },
+    {
       "id": "e-file:server/handlers.go-fn:github.com/cridiv/codelens/server.formatNodeAsSourceHint-contains",
       "from": "file:server/handlers.go",
       "to": "fn:github.com/cridiv/codelens/server.formatNodeAsSourceHint",
@@ -1294,9 +2010,9 @@
       "kind": "imports"
     },
     {
-      "id": "e-pkg:github.com/cridiv/codelens/cmd/codeatlas-pkg:github.com/cridiv/codelens/llm/openai-imports",
+      "id": "e-pkg:github.com/cridiv/codelens/cmd/codeatlas-pkg:github.com/cridiv/codelens/graph-imports",
       "from": "pkg:github.com/cridiv/codelens/cmd/codeatlas",
-      "to": "pkg:github.com/cridiv/codelens/llm/openai",
+      "to": "pkg:github.com/cridiv/codelens/graph",
       "kind": "imports"
     },
     {
@@ -1306,15 +2022,15 @@
       "kind": "imports"
     },
     {
-      "id": "e-pkg:github.com/cridiv/codelens/cmd/codeatlas-pkg:github.com/cridiv/codelens/graph-imports",
-      "from": "pkg:github.com/cridiv/codelens/cmd/codeatlas",
-      "to": "pkg:github.com/cridiv/codelens/graph",
-      "kind": "imports"
-    },
-    {
       "id": "e-pkg:github.com/cridiv/codelens/cmd/codeatlas-pkg:github.com/cridiv/codelens-imports",
       "from": "pkg:github.com/cridiv/codelens/cmd/codeatlas",
       "to": "pkg:github.com/cridiv/codelens",
+      "kind": "imports"
+    },
+    {
+      "id": "e-pkg:github.com/cridiv/codelens/cmd/codeatlas-pkg:github.com/cridiv/codelens/llm/openai-imports",
+      "from": "pkg:github.com/cridiv/codelens/cmd/codeatlas",
+      "to": "pkg:github.com/cridiv/codelens/llm/openai",
       "kind": "imports"
     },
     {
@@ -1366,6 +2082,12 @@
       "kind": "contains"
     },
     {
+      "id": "e-file:cmd/codeatlas/main.go-fn:github.com/cridiv/codelens/cmd/codeatlas.findAPIKey-contains",
+      "from": "file:cmd/codeatlas/main.go",
+      "to": "fn:github.com/cridiv/codelens/cmd/codeatlas.findAPIKey",
+      "kind": "contains"
+    },
+    {
       "id": "e-fn:github.com/cridiv/codelens/graph.Graph.NeighborsOf-fn:github.com/cridiv/codelens/graph.Graph.NodeByID-calls",
       "from": "fn:github.com/cridiv/codelens/graph.Graph.NeighborsOf",
       "to": "fn:github.com/cridiv/codelens/graph.Graph.NodeByID",
@@ -1405,6 +2127,24 @@
       "id": "e-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractImplementationsAndReferences-calls",
       "from": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.Analyze",
       "to": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractImplementationsAndReferences",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractDecls-fn:github.com/cridiv/codelens/analyzer/golang.nodePos-calls",
+      "from": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractDecls",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.nodePos",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractDecls-fn:github.com/cridiv/codelens/analyzer/golang.formatAST-calls",
+      "from": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractDecls",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.formatAST",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractDecls-fn:github.com/cridiv/codelens/analyzer/golang.isExportedName-calls",
+      "from": "fn:github.com/cridiv/codelens/analyzer/golang.Analyzer.extractDecls",
+      "to": "fn:github.com/cridiv/codelens/analyzer/golang.isExportedName",
       "kind": "calls"
     },
     {
@@ -1516,15 +2256,21 @@
       "kind": "calls"
     },
     {
+      "id": "e-fn:github.com/cridiv/codelens/server.Server.handleExplain-fn:github.com/cridiv/codelens/server.writeJSON-calls",
+      "from": "fn:github.com/cridiv/codelens/server.Server.handleExplain",
+      "to": "fn:github.com/cridiv/codelens/server.writeJSON",
+      "kind": "calls"
+    },
+    {
       "id": "e-fn:github.com/cridiv/codelens/server.Server.handleExplain-fn:github.com/cridiv/codelens/graph.Graph.NeighborsOf-calls",
       "from": "fn:github.com/cridiv/codelens/server.Server.handleExplain",
       "to": "fn:github.com/cridiv/codelens/graph.Graph.NeighborsOf",
       "kind": "calls"
     },
     {
-      "id": "e-fn:github.com/cridiv/codelens/server.Server.handleExplain-fn:github.com/cridiv/codelens/server.formatNodeAsSourceHint-calls",
+      "id": "e-fn:github.com/cridiv/codelens/server.Server.handleExplain-fn:github.com/cridiv/codelens/server.Server.readNodeSourceCode-calls",
       "from": "fn:github.com/cridiv/codelens/server.Server.handleExplain",
-      "to": "fn:github.com/cridiv/codelens/server.formatNodeAsSourceHint",
+      "to": "fn:github.com/cridiv/codelens/server.Server.readNodeSourceCode",
       "kind": "calls"
     },
     {
@@ -1534,9 +2280,15 @@
       "kind": "calls"
     },
     {
-      "id": "e-fn:github.com/cridiv/codelens/server.Server.handleExplain-fn:github.com/cridiv/codelens/server.writeJSON-calls",
+      "id": "e-fn:github.com/cridiv/codelens/server.Server.handleExplain-fn:github.com/cridiv/codelens/server.Server.persistExplanationCache-calls",
       "from": "fn:github.com/cridiv/codelens/server.Server.handleExplain",
-      "to": "fn:github.com/cridiv/codelens/server.writeJSON",
+      "to": "fn:github.com/cridiv/codelens/server.Server.persistExplanationCache",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/server.Server.readNodeSourceCode-fn:github.com/cridiv/codelens/server.formatNodeAsSourceHint-calls",
+      "from": "fn:github.com/cridiv/codelens/server.Server.readNodeSourceCode",
+      "to": "fn:github.com/cridiv/codelens/server.formatNodeAsSourceHint",
       "kind": "calls"
     },
     {
@@ -1561,6 +2313,12 @@
       "id": "e-fn:github.com/cridiv/codelens/cmd/codeatlas.main-fn:github.com/cridiv/codelens/cmd/codeatlas.loadGraph-calls",
       "from": "fn:github.com/cridiv/codelens/cmd/codeatlas.main",
       "to": "fn:github.com/cridiv/codelens/cmd/codeatlas.loadGraph",
+      "kind": "calls"
+    },
+    {
+      "id": "e-fn:github.com/cridiv/codelens/cmd/codeatlas.main-fn:github.com/cridiv/codelens/cmd/codeatlas.findAPIKey-calls",
+      "from": "fn:github.com/cridiv/codelens/cmd/codeatlas.main",
+      "to": "fn:github.com/cridiv/codelens/cmd/codeatlas.findAPIKey",
       "kind": "calls"
     },
     {

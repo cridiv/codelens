@@ -1,10 +1,11 @@
 package server
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/cridiv/codelens/graph"
@@ -141,24 +142,117 @@ func (s *Server) handleExplain(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Check server-side explanation cache
+	if cached, ok := s.explainCache.Load(req.NodeID); ok {
+		if explanationStr, ok := cached.(string); ok && explanationStr != "" {
+			writeJSON(w, http.StatusOK, map[string]string{"explanation": explanationStr})
+			return
+		}
+	}
+
 	// Build a one-hop subgraph to give the LLM contextual neighbours.
 	subgraph := s.graph.NeighborsOf(req.NodeID)
 
-	// TODO: supply actual source code from disk (Phase 5 / cache).
-	// For now we pass the node's metadata as a stand-in.
-	sourceCode := formatNodeAsSourceHint(node)
+	// Retrieve actual source code from disk for this node
+	sourceCode := s.readNodeSourceCode(node)
 
-	explanation, err := s.llm.Explain(context.Background(), node, subgraph, sourceCode)
+	explanation, err := s.llm.Explain(r.Context(), node, subgraph, sourceCode)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, fmt.Sprintf("generating explanation: %v", err))
 		return
 	}
 
+	// Save to in-memory cache
+	s.explainCache.Store(req.NodeID, explanation)
+
+	// Persist to disk cache asynchronously
+	if s.repoPath != "" {
+		go s.persistExplanationCache()
+	}
+
 	writeJSON(w, http.StatusOK, map[string]string{"explanation": explanation})
 }
 
-// formatNodeAsSourceHint produces a human-readable summary of a node's metadata
-// to substitute for real source code until disk-reading is implemented.
+// persistExplanationCache writes the full in-memory explanation cache to disk.
+func (s *Server) persistExplanationCache() {
+	cacheDir := filepath.Join(s.repoPath, ".codeatlas-cache")
+	if err := os.MkdirAll(cacheDir, 0o755); err != nil {
+		return
+	}
+	cacheFile := filepath.Join(cacheDir, "explanations.json")
+
+	diskMap := make(map[string]string)
+	s.explainCache.Range(func(key, value any) bool {
+		if k, ok := key.(string); ok {
+			if v, ok := value.(string); ok {
+				diskMap[k] = v
+			}
+		}
+		return true
+	})
+
+	if data, err := json.MarshalIndent(diskMap, "", "  "); err == nil {
+		_ = os.WriteFile(cacheFile, data, 0o644)
+	}
+}
+
+// readNodeSourceCode reads the real source code from disk for the targeted entity,
+// returning only the relevant declaration without dumping unrelated code.
+func (s *Server) readNodeSourceCode(n graph.Node) string {
+	if n.Path == "" {
+		return formatNodeAsSourceHint(n)
+	}
+
+	targetPath := n.Path
+	if !filepath.IsAbs(targetPath) && s.repoPath != "" {
+		targetPath = filepath.Join(s.repoPath, n.Path)
+	}
+
+	data, err := os.ReadFile(targetPath)
+	if err != nil {
+		return formatNodeAsSourceHint(n)
+	}
+
+	lines := strings.Split(string(data), "\n")
+	startLineStr := n.Metadata["start_line"]
+	endLineStr := n.Metadata["end_line"]
+
+	if startLineStr != "" && endLineStr != "" {
+		var start, end int
+		if _, err := fmt.Sscanf(startLineStr, "%d", &start); err == nil {
+			if _, err := fmt.Sscanf(endLineStr, "%d", &end); err == nil {
+				if start > 0 && end >= start && start <= len(lines) {
+					if end > len(lines) {
+						end = len(lines)
+					}
+					// Include doc comments right above if any
+					actualStart := start - 1
+					for actualStart > 0 && (strings.HasPrefix(strings.TrimSpace(lines[actualStart-1]), "//") || strings.TrimSpace(lines[actualStart-1]) == "") {
+						if strings.TrimSpace(lines[actualStart-1]) == "" && actualStart < start-1 {
+							break
+						}
+						actualStart--
+					}
+					return strings.Join(lines[actualStart:end], "\n")
+				}
+			}
+		}
+	}
+
+	// For specific functions or types with signature, return signature and doc
+	if n.Kind == "function" || n.Kind == "type" || n.Kind == "interface" {
+		return formatNodeAsSourceHint(n)
+	}
+
+	// For files, return top 60 lines
+	if len(lines) > 60 {
+		return strings.Join(lines[:60], "\n") + "\n\n// ... (truncated for brevity)"
+	}
+
+	return string(data)
+}
+
+// formatNodeAsSourceHint produces a human-readable summary of a node's metadata.
 func formatNodeAsSourceHint(n graph.Node) string {
 	lines := []string{
 		fmt.Sprintf("// Node: %s", n.Name),

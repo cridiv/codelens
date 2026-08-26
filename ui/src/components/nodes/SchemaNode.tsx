@@ -103,7 +103,31 @@ export const SchemaNode = memo(({ data, selected }: NodeProps<SchemaNodeData>) =
   }, [selectedNodeId, hoveredNodeId, node.id, graph.edges]);
 
   const badge = getKindBadge(node.kind);
-  const members = node.members || [];
+  const members: SchemaMember[] = React.useMemo(() => {
+    if (node.members && node.members.length > 0) return node.members;
+    if (node.metadata?.members) {
+      try {
+        const parsed = JSON.parse(node.metadata.members);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {
+        // ignore
+      }
+    }
+    // If it's a function with a signature, show the signature as a member
+    if (node.kind === 'function' && node.metadata?.signature) {
+      return [
+        {
+          name: node.name,
+          type: node.metadata.signature.replace(/^func\s*/, ''),
+          kind: 'function',
+          isExported: true,
+          description: node.metadata.doc,
+        },
+      ];
+    }
+    return [];
+  }, [node.members, node.metadata?.members, node.kind, node.name, node.metadata?.signature, node.metadata?.doc]);
+
   const isDifferentFile = activeFilePath && node.path && node.path !== activeFilePath;
 
   return (

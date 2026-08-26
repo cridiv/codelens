@@ -28,8 +28,6 @@ import {
   EyeOff,
   LayoutGrid,
   Search,
-  FileCode2,
-  Boxes,
 } from 'lucide-react';
 
 const nodeTypes = {
@@ -59,11 +57,8 @@ function CanvasContent() {
     breadcrumbs,
     popBreadcrumb,
     scopeMode,
-    setScopeMode,
     activeFilePath,
     activePackage,
-    setActiveFile,
-    setActivePackage,
   } = useStore();
 
   const reactFlowInstance = useReactFlow();
@@ -336,216 +331,54 @@ function CanvasContent() {
                 </span>
               )}
             </div>
-
-            {/* File Switcher Tabs Bar */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                backdropFilter: 'blur(8px)',
-                border: '1px solid #e2e8f0',
-                borderRadius: '8px',
-                padding: '4px 6px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                gap: 4,
-                overflowX: 'auto',
-                maxWidth: '75vw',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 4,
-                  padding: '2px 8px',
-                  fontSize: '0.7rem',
-                  fontWeight: 700,
-                  color: '#64748b',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.04em',
-                }}
-              >
-                <FileCode2 size={13} color="#2563eb" />
-                <span>Files:</span>
-              </div>
-
-              {allFiles.map((file) => {
-                const isActive = scopeMode === 'file' && activeFilePath === file.path;
-                return (
-                  <button
-                    key={file.path}
-                    onClick={() => setActiveFile(file.path)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 5,
-                      padding: '4px 10px',
-                      borderRadius: '6px',
-                      border: isActive ? '1px solid #93c5fd' : '1px solid #f1f5f9',
-                      backgroundColor: isActive ? '#eff6ff' : '#ffffff',
-                      color: isActive ? '#1d4ed8' : '#475569',
-                      fontSize: '0.74rem',
-                      fontWeight: isActive ? 600 : 400,
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap',
-                      fontFamily: 'var(--font-mono), monospace',
-                      transition: 'all 0.15s ease',
-                    }}
-                    className="hover:bg-slate-50"
-                  >
-                    <span>{file.name}</span>
-                    <span
-                      style={{
-                        fontSize: '0.62rem',
-                        backgroundColor: isActive ? '#dbeafe' : '#f1f5f9',
-                        color: isActive ? '#2563eb' : '#94a3b8',
-                        padding: '1px 5px',
-                        borderRadius: '4px',
-                        fontWeight: 600,
-                      }}
-                    >
-                      {file.count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
           </div>
         </Panel>
 
-        {/* Top-Right: Scope Segmented Controller & Quick Search */}
+        {/* Top-Right: Quick Search Bar */}
         <Panel position="top-right" style={{ margin: '14px 16px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
-            {/* Scope Mode Control */}
-            <div
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '8px',
+              padding: '4px 10px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              width: 240,
+              gap: 6,
+            }}
+          >
+            <Search size={14} color="#94a3b8" />
+            <input
+              type="text"
+              placeholder="Search entities, fields, methods..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                backdropFilter: 'blur(8px)',
-                border: '1px solid #e2e8f0',
-                borderRadius: '8px',
-                padding: '3px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                gap: 2,
+                border: 'none',
+                outline: 'none',
+                width: '100%',
+                fontSize: '0.78rem',
+                color: '#0f172a',
+                fontFamily: 'var(--font-sans)',
               }}
-            >
+            />
+            {searchQuery && (
               <button
-                onClick={() => {
-                  if (activeFilePath) setScopeMode('file');
-                  else if (allFiles[0]) setActiveFile(allFiles[0].path);
-                }}
+                onClick={() => setSearchQuery('')}
                 style={{
-                  padding: '4px 10px',
-                  borderRadius: '5px',
+                  background: 'none',
                   border: 'none',
-                  backgroundColor: scopeMode === 'file' ? '#2563eb' : 'transparent',
-                  color: scopeMode === 'file' ? '#ffffff' : '#64748b',
-                  fontSize: '0.74rem',
-                  fontWeight: 600,
+                  fontSize: '0.75rem',
+                  color: '#94a3b8',
                   cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 4,
-                  transition: 'all 0.15s ease',
+                  padding: 2,
                 }}
               >
-                <FileCode2 size={13} />
-                File Schema
+                ✕
               </button>
-
-              <button
-                onClick={() => {
-                  const pkg = activePackage || 'auth';
-                  setActivePackage(pkg);
-                }}
-                style={{
-                  padding: '4px 10px',
-                  borderRadius: '5px',
-                  border: 'none',
-                  backgroundColor: scopeMode === 'package' ? '#2563eb' : 'transparent',
-                  color: scopeMode === 'package' ? '#ffffff' : '#64748b',
-                  fontSize: '0.74rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 4,
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                <Boxes size={13} />
-                Package View
-              </button>
-
-              <button
-                onClick={() => setScopeMode('all')}
-                style={{
-                  padding: '4px 10px',
-                  borderRadius: '5px',
-                  border: 'none',
-                  backgroundColor: scopeMode === 'all' ? '#2563eb' : 'transparent',
-                  color: scopeMode === 'all' ? '#ffffff' : '#64748b',
-                  fontSize: '0.74rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 4,
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                <LayoutGrid size={13} />
-                Full Codebase
-              </button>
-            </div>
-
-            {/* Quick Search Bar */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                backgroundColor: '#ffffff',
-                border: '1px solid #e2e8f0',
-                borderRadius: '8px',
-                padding: '4px 10px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                width: 240,
-                gap: 6,
-              }}
-            >
-              <Search size={14} color="#94a3b8" />
-              <input
-                type="text"
-                placeholder="Search entities, fields, methods..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{
-                  border: 'none',
-                  outline: 'none',
-                  width: '100%',
-                  fontSize: '0.78rem',
-                  color: '#0f172a',
-                  fontFamily: 'var(--font-sans)',
-                }}
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    fontSize: '0.75rem',
-                    color: '#94a3b8',
-                    cursor: 'pointer',
-                    padding: 2,
-                  }}
-                >
-                  ✕
-                </button>
-              )}
-            </div>
+            )}
           </div>
         </Panel>
 

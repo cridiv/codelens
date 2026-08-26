@@ -104,12 +104,56 @@ const buildBreadcrumbs = (
 
 export const useStore = create<VisualizerState>((set, get) => ({
   graph: mockCodebaseGraph,
-  setGraph: (graph) => set({ graph }),
+  setGraph: (incomingGraph) => {
+    // Normalize nodes and parse JSON members if needed
+    const normalizedNodes = (incomingGraph.nodes || []).map((node) => {
+      let members = node.members || [];
+      if ((!members || members.length === 0) && node.metadata?.members) {
+        try {
+          members = JSON.parse(node.metadata.members);
+        } catch {
+          // ignore
+        }
+      }
+      return {
+        ...node,
+        members,
+      };
+    });
 
-  // Default to the primary service file schema
-  scopeMode: 'file',
-  activeFilePath: 'internal/auth/service.go',
-  activePackage: 'auth',
+    const normalizedGraph: Graph = {
+      ...incomingGraph,
+      nodes: normalizedNodes,
+      edges: incomingGraph.edges || [],
+    };
+
+    // Find the first struct / type or interface
+    const firstTypeNode = normalizedNodes.find((n) => n.kind === 'type' || n.kind === 'interface');
+    const firstFile = firstTypeNode?.path || normalizedNodes.find((n) => n.kind === 'file')?.path || normalizedNodes[0]?.path || null;
+    const firstPkg = firstTypeNode?.metadata?.package || normalizedNodes.find((n) => n.kind === 'package')?.name || null;
+    const initialSelectedId = firstTypeNode?.id || normalizedNodes[0]?.id || null;
+
+    set({
+      graph: normalizedGraph,
+      scopeMode: firstFile ? 'file' : 'all',
+      activeFilePath: firstFile,
+      activePackage: firstPkg,
+      selectedNodeId: initialSelectedId,
+      breadcrumbs: buildBreadcrumbs(
+        firstFile ? 'file' : 'all',
+        firstPkg,
+        firstFile,
+        firstTypeNode?.name,
+        firstTypeNode?.kind,
+        initialSelectedId
+      ),
+    });
+  },
+
+  // Default initial scope
+  scopeMode: 'all',
+  activeFilePath: null,
+  activePackage: null,
 
   setActiveFile: (filePath) => {
     if (!filePath) {

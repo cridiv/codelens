@@ -3,11 +3,15 @@ package server
 import (
 	"context"
 	"embed"
+	"encoding/json"
 	"fmt"
 	"io/fs"
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/cridiv/codelens/graph"
@@ -22,29 +26,49 @@ var UIFiles embed.FS
 
 // Server wraps an HTTP server with all its dependencies.
 type Server struct {
-	graph    *graph.Graph
-	llm      llm.LLMClient // may be nil when no provider is configured
-	httpSrv  *http.Server
-	uiFiles  fs.FS
-	verbose  bool
+	graph        *graph.Graph
+	llm          llm.LLMClient // may be nil when no provider is configured
+	httpSrv      *http.Server
+	uiFiles      fs.FS
+	repoPath     string
+	verbose      bool
+	explainCache sync.Map // map[string]string (nodeID -> explanation)
 }
 
 // Options configures a Server instance.
 type Options struct {
-	Port    int
-	Graph   *graph.Graph
-	LLM     llm.LLMClient // optional
-	UIFiles fs.FS         // embedded ui/dist — pass nil to skip UI serving
-	Verbose bool
+	Port     int
+	Graph    *graph.Graph
+	LLM      llm.LLMClient // optional
+	UIFiles  fs.FS         // embedded ui/dist — pass nil to skip UI serving
+	RepoPath string        // root directory of the analyzed codebase on disk
+	Verbose  bool
 }
 
 // New creates a configured Server and registers all routes.
 func New(opts Options) *Server {
 	s := &Server{
-		graph:   opts.Graph,
-		llm:     opts.LLM,
-		uiFiles: opts.UIFiles,
-		verbose: opts.Verbose,
+		graph:    opts.Graph,
+		llm:      opts.LLM,
+		uiFiles:  opts.UIFiles,
+		repoPath: opts.RepoPath,
+		verbose:  opts.Verbose,
+	}
+
+	// Load existing cached AI explanations from disk if available
+	if s.repoPath != "" {
+		cacheFilePath := filepath.Join(s.repoPath, ".codeatlas-cache", "explanations.json")
+		if data, err := os.ReadFile(cacheFilePath); err == nil {
+			var diskCache map[string]string
+			if err := json.Unmarshal(data, &diskCache); err == nil {
+				for k, v := range diskCache {
+					s.explainCache.Store(k, v)
+				}
+				if s.verbose {
+					log.Printf("[cache] loaded %d AI explanations from disk", len(diskCache))
+				}
+			}
+		}
 	}
 
 	mux := http.NewServeMux()

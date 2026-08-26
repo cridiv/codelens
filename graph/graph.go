@@ -5,6 +5,15 @@ import (
 	"fmt"
 )
 
+// Member represents a field, method, or property within a type, struct, or interface node.
+type Member struct {
+	Name        string `json:"name"`
+	Type        string `json:"type"`
+	Kind        string `json:"kind,omitempty"` // "field" | "method" | "function" | "parameter"
+	IsExported  bool   `json:"isExported,omitempty"`
+	Description string `json:"description,omitempty"`
+}
+
 // Node represents any architectural entity in the codebase (package, file, type, function, interface, table).
 type Node struct {
 	ID       string            `json:"id"`
@@ -12,6 +21,7 @@ type Node struct {
 	Name     string            `json:"name"`
 	Path     string            `json:"path"`
 	Metadata map[string]string `json:"metadata,omitempty"`
+	Members  []Member          `json:"members,omitempty"`
 }
 
 // Edge represents a directed architectural relationship between two nodes.

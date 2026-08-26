@@ -163,3 +163,119 @@ body, html {
   }
 }
 
+/* Markdown Content Styling */
+.markdown-content {
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: #334155;
+}
+
+.markdown-content p {
+  margin-bottom: 0.75rem;
+}
+
+.markdown-content p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content strong {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4 {
+  color: #0f172a;
+  font-weight: 700;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.markdown-content h1 { font-size: 0.95rem; }
+.markdown-content h2 { font-size: 0.88rem; }
+.markdown-content h3 { font-size: 0.82rem; }
+.markdown-content h4 { font-size: 0.78rem; }
+
+.markdown-content ul,
+.markdown-content ol {
+  padding-left: 1.2rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.markdown-content li {
+  line-height: 1.5;
+}
+
+.markdown-content code:not(pre code) {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.72rem;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 1.5px 5px;
+  color: #0f172a;
+}
+
+.markdown-content pre {
+  background-color: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 0.6rem 0;
+  overflow-x: auto;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.markdown-content pre code {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: #e2e8f0;
+  background: transparent;
+  padding: 0;
+  border: none;
+}
+
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75rem 0;
+  font-size: 0.75rem;
+}
+
+.markdown-content th,
+.markdown-content td {
+  border: 1px solid #e2e8f0;
+  padding: 6px 10px;
+  text-align: left;
+}
+
+.markdown-content th {
+  background-color: #f8fafc;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.markdown-content tr:nth-child(even) {
+  background-color: #fbfcfe;
+}
+
+.markdown-content blockquote {
+  border-left: 3px solid #3b82f6;
+  background-color: #eff6ff;
+  padding: 8px 12px;
+  border-radius: 0 6px 6px 0;
+  margin: 0.6rem 0;
+  color: #1e40af;
+  font-size: 0.78rem;
+}
+
+

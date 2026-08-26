@@ -2,7 +2,8 @@ import React from 'react';
 import { useStore } from '../store/useStore';
 import {
   Boxes,
-  FolderGit2,
+  FileCode2,
+  LayoutGrid,
   PanelLeft,
   PanelRight,
 } from 'lucide-react';
@@ -10,6 +11,13 @@ import {
 export const Navbar: React.FC = () => {
   const {
     graph,
+    scopeMode,
+    setScopeMode,
+    selectNode,
+    activePackage,
+    setActivePackage,
+    activeFilePath,
+    setActiveFile,
     isLeftPanelOpen,
     toggleLeftPanel,
     isRightPanelOpen,
@@ -95,23 +103,99 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
 
-        {/* Active Repo Path Badge */}
+        {/* Scope Mode Segmented Control in Navbar */}
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 6,
-            backgroundColor: '#f8fafc',
+            backgroundColor: '#f1f5f9',
             border: '1px solid #e2e8f0',
-            padding: '3px 10px',
-            borderRadius: '6px',
-            fontSize: '0.75rem',
-            color: '#475569',
-            fontFamily: 'var(--font-mono), monospace',
+            borderRadius: '8px',
+            padding: '3px',
+            gap: 2,
           }}
         >
-          <FolderGit2 size={13} color="#64748b" />
-          <span>current-workspace</span>
+          <button
+            onClick={() => {
+              setScopeMode('all');
+              selectNode(null);
+            }}
+            title="Full Codebase Overview"
+            style={{
+              padding: '4px 12px',
+              borderRadius: '6px',
+              border: 'none',
+              backgroundColor: scopeMode === 'all' ? '#2563eb' : 'transparent',
+              color: scopeMode === 'all' ? '#ffffff' : '#64748b',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+              transition: 'all 0.15s ease',
+              boxShadow: scopeMode === 'all' ? '0 1px 3px rgba(37,99,235,0.2)' : 'none',
+            }}
+          >
+            <LayoutGrid size={13} />
+            <span>CodeOverview</span>
+          </button>
+
+          <button
+            onClick={() => {
+              const pkg = activePackage || (graph.nodes[0]?.metadata?.package) || 'root';
+              setActivePackage(pkg);
+            }}
+            title="Package View"
+            style={{
+              padding: '4px 12px',
+              borderRadius: '6px',
+              border: 'none',
+              backgroundColor: scopeMode === 'package' ? '#2563eb' : 'transparent',
+              color: scopeMode === 'package' ? '#ffffff' : '#64748b',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+              transition: 'all 0.15s ease',
+              boxShadow: scopeMode === 'package' ? '0 1px 3px rgba(37,99,235,0.2)' : 'none',
+            }}
+          >
+            <Boxes size={13} />
+            <span>Package View</span>
+          </button>
+
+          <button
+            onClick={() => {
+              if (activeFilePath) {
+                setScopeMode('file');
+              } else {
+                const firstFile = graph.nodes.find((n) => n.path)?.path;
+                if (firstFile) setActiveFile(firstFile);
+              }
+            }}
+            title="File Schema"
+            style={{
+              padding: '4px 12px',
+              borderRadius: '6px',
+              border: 'none',
+              backgroundColor: scopeMode === 'file' ? '#2563eb' : 'transparent',
+              color: scopeMode === 'file' ? '#ffffff' : '#64748b',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+              transition: 'all 0.15s ease',
+              boxShadow: scopeMode === 'file' ? '0 1px 3px rgba(37,99,235,0.2)' : 'none',
+            }}
+          >
+            <FileCode2 size={13} />
+            <span>File Schema</span>
+          </button>
         </div>
       </div>
 

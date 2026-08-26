@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -64,15 +65,14 @@ func main() {
 	}
 
 	// ── Configure LLM ─────────────────────────────────────────────────────────
-	apiKey := *llmKey
-	if apiKey == "" {
-		apiKey = os.Getenv("MODEL_API_KEY")
-	}
-	if apiKey == "" {
-		apiKey = os.Getenv("CODEATLAS_LLM_KEY")
+	apiKey := findAPIKey(*llmKey, absRepoPath)
+
+	modelName := *llmModel
+	if modelName == "" {
+		modelName = os.Getenv("MODEL_NAME")
 	}
 
-	llmClient := buildLLMClient(*llmProvider, *llmModel, *llmBaseURL, apiKey, *verbose)
+	llmClient := buildLLMClient(*llmProvider, modelName, *llmBaseURL, apiKey, *verbose)
 
 	// ── Embed UI ───────────────────────────────────────────────────────────────
 	// Strip the "ui/dist" prefix so that index.html is at "/" not "/ui/dist/".
@@ -84,11 +84,12 @@ func main() {
 
 	// ── Start server ───────────────────────────────────────────────────────────
 	opts := server.Options{
-		Port:    *port,
-		Graph:   g,
-		LLM:     llmClient,
-		UIFiles: uiFS,
-		Verbose: *verbose,
+		Port:     *port,
+		Graph:    g,
+		LLM:      llmClient,
+		UIFiles:  uiFS,
+		RepoPath: absRepoPath,
+		Verbose:  *verbose,
 	}
 
 	srv := server.New(opts)
@@ -279,3 +280,53 @@ func writeCache(cacheFile string, g *graph.Graph) error {
 	}
 	return nil
 }
+
+// findAPIKey retrieves the API key with fallback precedence:
+// 1. Explicit CLI flag
+// 2. Process environment variables (MODEL_API_KEY, CODEATLAS_LLM_KEY, NVIDIA_API_KEY, OPENAI_API_KEY)
+// 3. .env file in the target repository directory
+// 4. .env file in the current working directory
+func findAPIKey(flagKey, repoPath string) string {
+	if flagKey != "" {
+		return flagKey
+	}
+
+	envVars := []string{"MODEL_API_KEY", "CODEATLAS_LLM_KEY", "NVIDIA_API_KEY", "OPENAI_API_KEY"}
+	for _, envName := range envVars {
+		if val := os.Getenv(envName); val != "" {
+			return val
+		}
+	}
+
+	// Try reading .env files
+	envLocations := []string{
+		filepath.Join(repoPath, ".env"),
+		".env",
+	}
+
+	for _, loc := range envLocations {
+		data, err := os.ReadFile(loc)
+		if err != nil {
+			continue
+		}
+		for _, line := range strings.Split(string(data), "\n") {
+			line = strings.TrimSpace(line)
+			if strings.HasPrefix(line, "#") || !strings.Contains(line, "=") {
+				continue
+			}
+			parts := strings.SplitN(line, "=", 2)
+			key := strings.TrimSpace(parts[0])
+			val := strings.TrimSpace(parts[1])
+			val = strings.Trim(val, "\"'`")
+
+			for _, targetKey := range envVars {
+				if key == targetKey && val != "" {
+					return val
+				}
+			}
+		}
+	}
+
+	return ""
+}
+
