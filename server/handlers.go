@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/cridiv/codelens/graph"
+	"github.com/cridiv/codelens/llm"
 )
 
 // writeJSON encodes v as JSON and writes it to w with the given status code.
@@ -171,6 +172,56 @@ func (s *Server) handleExplain(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, map[string]string{"explanation": explanation})
+}
+
+type chatRequestPayload struct {
+	NodeID   string            `json:"nodeId"`
+	Question string            `json:"question"`
+	History  []llm.ChatMessage `json:"history"`
+}
+
+// handleChat answers interactive follow-up questions about the targeted node.
+func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
+
+	if s.llm == nil {
+		writeError(w, http.StatusServiceUnavailable, "no LLM provider configured")
+		return
+	}
+
+	var req chatRequestPayload
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, fmt.Sprintf("decoding request body: %v", err))
+		return
+	}
+	if req.NodeID == "" {
+		writeError(w, http.StatusBadRequest, "nodeId is required")
+		return
+	}
+	if strings.TrimSpace(req.Question) == "" {
+		writeError(w, http.StatusBadRequest, "question is required")
+		return
+	}
+
+	node, ok := s.graph.NodeByID(req.NodeID)
+	if !ok {
+		writeError(w, http.StatusNotFound, fmt.Sprintf("node %q not found", req.NodeID))
+		return
+	}
+
+	subgraph := s.graph.NeighborsOf(req.NodeID)
+	sourceCode := s.readNodeSourceCode(node)
+
+	answer, err := s.llm.Chat(r.Context(), node, subgraph, sourceCode, req.History, req.Question)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, fmt.Sprintf("answering question: %v", err))
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]string{"answer": answer})
 }
 
 // persistExplanationCache writes the full in-memory explanation cache to disk.

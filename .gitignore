@@ -1,5 +1,6 @@
 # Binaries
 codelens
+codeatlas
 *.exe
 *.exe~
 *.dll
@@ -8,6 +9,7 @@ codelens
 
 # Cache and temporary files
 .codelens-cache/
+.codeatlas-cache/
 *.log
 
 # UI
