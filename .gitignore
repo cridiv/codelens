@@ -1,6 +1,6 @@
 # Binaries
-codelens
-codeatlas
+/codelens
+/codeatlas
 *.exe
 *.exe~
 *.dll
