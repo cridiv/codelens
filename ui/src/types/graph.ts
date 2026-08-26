@@ -1,4 +1,4 @@
-export type NodeKind = 'package' | 'file' | 'type' | 'function' | 'interface' | 'table';
+export type NodeKind = 'package' | 'file' | 'type' | 'function' | 'interface' | 'table' | 'packageCluster';
 
 export interface SchemaMember {
   name: string;
@@ -19,11 +19,11 @@ export interface Node {
     package?: string;
     file?: string;
     doc?: string;
-    members?: string; // JSON encoded SchemaMember[]
+    members?: string;
     loc?: string;
     importsCount?: string;
     callsCount?: string;
-    [key: string]: string | undefined;
+    [key: string]: any;
   };
   // Parsed members for schema rendering
   members?: SchemaMember[];

@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
+import { Handle, Position, NodeProps, useStore as useReactFlowStore } from 'reactflow';
 import { Node, SchemaMember } from '../../types/graph';
 import { useStore } from '../../store/useStore';
 import { 
@@ -87,6 +87,8 @@ export const SchemaNode = memo(({ data, selected }: NodeProps<SchemaNodeData>) =
     graph
   } = useStore();
 
+  const zoom = useReactFlowStore((s) => s.transform[2]);
+
   const isCurrentSelected = selectedNodeId === node.id || selected;
   const isHovered = hoveredNodeId === node.id;
 
@@ -101,6 +103,9 @@ export const SchemaNode = memo(({ data, selected }: NodeProps<SchemaNodeData>) =
         (e.to === focusId && e.from === node.id)
     );
   }, [selectedNodeId, hoveredNodeId, node.id, graph.edges]);
+
+  // Level of Detail (LOD): when zoomed far out, render lightweight compact cards
+  const isLODCompact = zoom < 0.45 && !isCurrentSelected && !isHovered && !isConnected;
 
   const badge = getKindBadge(node.kind);
   const members: SchemaMember[] = React.useMemo(() => {
@@ -347,119 +352,131 @@ export const SchemaNode = memo(({ data, selected }: NodeProps<SchemaNodeData>) =
         )}
       </div>
 
-      {/* Schema Columns / Members List */}
-      <div
-        style={{
-          padding: '6px 0',
-          maxHeight: isExternal ? 160 : 260,
-          overflowY: 'auto',
-        }}
-      >
-        {members.length > 0 ? (
-          members.map((member: SchemaMember, idx: number) => {
-            const isPK = member.type.includes('[PK]');
-            const isFK = member.type.includes('[FK');
-            const isUnique = member.type.includes('[UNIQUE]');
-            const isMethod = member.kind === 'method' || member.name.includes('(');
-
-            return (
-              <div
-                key={idx}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '5px 14px',
-                  fontSize: '0.74rem',
-                  fontFamily: 'var(--font-mono), monospace',
-                  borderBottom: idx < members.length - 1 ? '1px solid #f8fafc' : 'none',
-                  backgroundColor: isCurrentSelected ? '#fbfcfe' : 'transparent',
-                }}
-                className="schema-member-row"
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-                  {isPK ? (
-                    <Key size={12} color="#f59e0b" style={{ flexShrink: 0 }} />
-                  ) : isFK ? (
-                    <ArrowRight size={12} color="#3b82f6" style={{ flexShrink: 0 }} />
-                  ) : isMethod ? (
-                    <span style={{ color: '#10b981', fontWeight: 600, fontSize: '0.68rem' }}>fn</span>
-                  ) : (
-                    <Hash size={12} color="#94a3b8" style={{ flexShrink: 0 }} />
-                  )}
-
-                  <span
-                    style={{
-                      fontWeight: isPK || isMethod ? 600 : 500,
-                      color: isPK ? '#0f172a' : isMethod ? '#1e293b' : '#334155',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                    title={member.name}
-                  >
-                    {member.name}
-                  </span>
-                </div>
-
-                <div
-                  style={{
-                    fontSize: '0.66rem',
-                    color: isPK ? '#b45309' : isFK ? '#2563eb' : isUnique ? '#7c3aed' : '#64748b',
-                    backgroundColor: isPK
-                      ? '#fef3c7'
-                      : isFK
-                      ? '#eff6ff'
-                      : isUnique
-                      ? '#f5f3ff'
-                      : '#f8fafc',
-                    padding: '1px 6px',
-                    borderRadius: '4px',
-                    whiteSpace: 'nowrap',
-                    marginLeft: 8,
-                    fontWeight: 500,
-                  }}
-                  title={member.type}
-                >
-                  {member.type}
-                </div>
-              </div>
-            );
-          })
-        ) : (
+      {/* Schema Columns / Members List (Skipped in LOD Compact mode for 60fps performance) */}
+      {!isLODCompact ? (
+        <>
           <div
             style={{
-              padding: '10px 14px',
-              fontSize: '0.72rem',
-              color: '#94a3b8',
-              fontStyle: 'italic',
+              padding: '6px 0',
+              maxHeight: isExternal ? 160 : 260,
+              overflowY: 'auto',
             }}
           >
-            No declared properties or methods
-          </div>
-        )}
-      </div>
+            {members.length > 0 ? (
+              members.map((member: SchemaMember, idx: number) => {
+                const isPK = member.type.includes('[PK]');
+                const isFK = member.type.includes('[FK');
+                const isMethod = member.kind === 'method' || member.name.includes('(');
 
-      {/* Card Footer */}
-      {node.metadata?.doc && (
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '5px 14px',
+                      fontSize: '0.74rem',
+                      fontFamily: 'var(--font-mono), monospace',
+                      borderBottom: idx < members.length - 1 ? '1px solid #f8fafc' : 'none',
+                      backgroundColor: isCurrentSelected ? '#fbfcfe' : 'transparent',
+                    }}
+                    className="schema-member-row"
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                      {isPK ? (
+                        <Key size={12} color="#f59e0b" style={{ flexShrink: 0 }} />
+                      ) : isFK ? (
+                        <ArrowRight size={12} color="#3b82f6" style={{ flexShrink: 0 }} />
+                      ) : isMethod ? (
+                        <span style={{ color: '#10b981', fontWeight: 600, fontSize: '0.68rem' }}>fn</span>
+                      ) : (
+                        <Hash size={12} color="#94a3b8" style={{ flexShrink: 0 }} />
+                      )}
+
+                      <span
+                        style={{
+                          fontWeight: isPK || isMethod ? 600 : 500,
+                          color: isPK ? '#0f172a' : isMethod ? '#1e293b' : '#334155',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        {member.name}
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, marginLeft: 8 }}>
+                      <span
+                        style={{
+                          fontSize: '0.68rem',
+                          color: '#64748b',
+                          backgroundColor: '#f8fafc',
+                          padding: '1px 5px',
+                          borderRadius: '3px',
+                          border: '1px solid #e2e8f0',
+                        }}
+                      >
+                        {member.type}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div
+                style={{
+                  padding: '8px 14px',
+                  fontSize: '0.72rem',
+                  color: '#94a3b8',
+                  fontStyle: 'italic',
+                }}
+              >
+                No declared properties or methods
+              </div>
+            )}
+          </div>
+
+          {/* Card Footer */}
+          {node.metadata?.doc && (
+            <div
+              style={{
+                padding: '6px 14px',
+                borderTop: '1px solid #f1f5f9',
+                backgroundColor: '#fafafa',
+                borderBottomLeftRadius: '9px',
+                borderBottomRightRadius: '9px',
+                fontSize: '0.66rem',
+                color: '#64748b',
+                lineHeight: 1.3,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+              }}
+            >
+              {node.metadata.doc}
+            </div>
+          )}
+        </>
+      ) : (
+        /* LOD Compact Summary Bar */
         <div
           style={{
-            padding: '6px 14px',
+            padding: '4px 14px',
+            backgroundColor: '#f8fafc',
             borderTop: '1px solid #f1f5f9',
-            backgroundColor: '#fafafa',
-            borderBottomLeftRadius: '9px',
-            borderBottomRightRadius: '9px',
-            fontSize: '0.66rem',
+            fontSize: '0.65rem',
             color: '#64748b',
-            lineHeight: 1.3,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
           }}
         >
-          {node.metadata.doc}
+          <span>{members.length} {members.length === 1 ? 'member' : 'members'}</span>
+          <span style={{ fontSize: '0.6rem', color: '#94a3b8' }}>Zoom in to expand</span>
         </div>
       )}
 
