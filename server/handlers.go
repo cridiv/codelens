@@ -226,7 +226,7 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 
 // persistExplanationCache writes the full in-memory explanation cache to disk.
 func (s *Server) persistExplanationCache() {
-	cacheDir := filepath.Join(s.repoPath, ".codeatlas-cache")
+	cacheDir := filepath.Join(s.repoPath, ".codelens-cache")
 	if err := os.MkdirAll(cacheDir, 0o755); err != nil {
 		return
 	}

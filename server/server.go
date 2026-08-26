@@ -57,7 +57,11 @@ func New(opts Options) *Server {
 
 	// Load existing cached AI explanations from disk if available
 	if s.repoPath != "" {
-		cacheFilePath := filepath.Join(s.repoPath, ".codeatlas-cache", "explanations.json")
+		cacheFilePath := filepath.Join(s.repoPath, ".codelens-cache", "explanations.json")
+		if _, err := os.Stat(cacheFilePath); err != nil {
+			// Fallback check for legacy cache path
+			cacheFilePath = filepath.Join(s.repoPath, ".codeatlas-cache", "explanations.json")
+		}
 		if data, err := os.ReadFile(cacheFilePath); err == nil {
 			var diskCache map[string]string
 			if err := json.Unmarshal(data, &diskCache); err == nil {
