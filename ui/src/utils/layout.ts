@@ -40,24 +40,45 @@ export function computeGraphLayout(
     marginy: 40,
   });
 
-  // Calculate approximate height based on member count
+  // Calculate approximate height based on node kind and member count
   const rfNodes: RFNode[] = graph.nodes.map((node) => {
+    const isCluster = node.kind === 'packageCluster';
     const memberCount = node.members?.length || 0;
-    const computedHeight = Math.max(140, 80 + memberCount * 28 + (node.isExternal ? 30 : 0));
+    const computedHeight = isCluster
+      ? 200
+      : Math.max(120, 75 + memberCount * 28 + (node.isExternal ? 30 : 0));
+    const effectiveWidth = isCluster ? 340 : nodeWidth;
 
     dagreGraph.setNode(node.id, {
-      width: nodeWidth,
+      width: effectiveWidth,
       height: computedHeight,
     });
 
-    return {
-      id: node.id,
-      type: 'schemaNode',
-      data: {
+    let nodeData: any;
+    if (isCluster) {
+      nodeData = {
+        packageName: node.name,
+        totalEntities: Number(node.metadata?.totalEntities || 0),
+        totalFiles: Number(node.metadata?.totalFiles || 0),
+        typesCount: Number(node.metadata?.typesCount || 0),
+        functionsCount: Number(node.metadata?.functionsCount || 0),
+        interfacesCount: Number(node.metadata?.interfacesCount || 0),
+        topSymbols: (node.metadata as any)?.topSymbols || [],
+        inboundCalls: Number(node.metadata?.inboundCalls || 0),
+        outboundCalls: Number(node.metadata?.outboundCalls || 0),
+      };
+    } else {
+      nodeData = {
         node,
         raw: node,
         isExternal: Boolean(node.isExternal),
-      },
+      };
+    }
+
+    return {
+      id: node.id,
+      type: isCluster ? 'packageClusterNode' : 'schemaNode',
+      data: nodeData,
       position: { x: 0, y: 0 },
     };
   });
@@ -84,15 +105,19 @@ export function computeGraphLayout(
   // Apply computed positions from Dagre
   const layoutedNodes = rfNodes.map((node) => {
     const nodeWithPos = dagreGraph.node(node.id);
-    const memberCount = (node.data.node.members?.length || 0);
-    const computedHeight = Math.max(140, 80 + memberCount * 28 + (node.data.isExternal ? 30 : 0));
+    const isCluster = node.type === 'packageClusterNode';
+    const memberCount = (node.data?.node?.members?.length || 0);
+    const computedHeight = isCluster
+      ? 200
+      : Math.max(120, 75 + memberCount * 28 + (node.data?.isExternal ? 30 : 0));
+    const effectiveWidth = isCluster ? 340 : nodeWidth;
 
     return {
       ...node,
       draggable: false,
       position: {
         // Dagre centers nodes, React Flow coordinates are top-left
-        x: nodeWithPos ? nodeWithPos.x - nodeWidth / 2 : 0,
+        x: nodeWithPos ? nodeWithPos.x - effectiveWidth / 2 : 0,
         y: nodeWithPos ? nodeWithPos.y - computedHeight / 2 : 0,
       },
     };
