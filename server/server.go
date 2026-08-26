@@ -77,6 +77,7 @@ func New(opts Options) *Server {
 	mux.HandleFunc("/api/graph", s.handleGraph)
 	mux.HandleFunc("/api/node/", s.handleNode) // matches /api/node/:id and /api/node/:id/neighbors
 	mux.HandleFunc("/api/explain", s.handleExplain)
+	mux.HandleFunc("/api/chat", s.handleChat)
 
 	// ── Static UI ─────────────────────────────────────────────────────────────
 	if opts.UIFiles != nil {

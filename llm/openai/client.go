@@ -165,6 +165,90 @@ func (c *Client) Explain(ctx context.Context, node graph.Node, subgraph graph.Gr
 	return strings.TrimSpace(chatResp.Choices[0].Message.Content), nil
 }
 
+// Chat answers follow-up questions about a specific code component with full context.
+func (c *Client) Chat(ctx context.Context, node graph.Node, subgraph graph.Graph, sourceCode string, history []llm.ChatMessage, question string) (string, error) {
+	baseContext := buildPrompt(node, subgraph, sourceCode)
+
+	messages := []chatMessage{
+		{
+			Role: "system",
+			Content: `You are a friendly, helpful programming teacher.
+The user is inspecting a specific codebase component and asking follow-up questions about it.
+Answer clearly, concisely, and in simple plain English.
+Avoid unnecessary jargon. Use brief code snippets only if helpful.`,
+		},
+		{
+			Role:    "user",
+			Content: "Here is the component we are discussing:\n\n" + baseContext,
+		},
+		{
+			Role:    "assistant",
+			Content: "Understood. I have full context on this component and its relationships. What would you like to know?",
+		},
+	}
+
+	for _, h := range history {
+		messages = append(messages, chatMessage{
+			Role:    h.Role,
+			Content: h.Content,
+		})
+	}
+
+	messages = append(messages, chatMessage{
+		Role:    "user",
+		Content: question,
+	})
+
+	reqBody := chatRequest{
+		Model:       c.model,
+		Messages:    messages,
+		Temperature: 0.3,
+		MaxTokens:   1000,
+	}
+
+	body, err := json.Marshal(reqBody)
+	if err != nil {
+		return "", fmt.Errorf("encoding request: %w", err)
+	}
+
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/chat/completions", bytes.NewReader(body))
+	if err != nil {
+		return "", fmt.Errorf("creating request: %w", err)
+	}
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("Authorization", "Bearer "+c.apiKey)
+
+	resp, err := c.httpClient.Do(httpReq)
+	if err != nil {
+		return "", fmt.Errorf("calling LLM API: %w", err)
+	}
+	defer resp.Body.Close()
+
+	respBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("reading LLM response body: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("LLM API returned %d: %s", resp.StatusCode, string(respBytes))
+	}
+
+	var chatResp chatResponse
+	if err := json.Unmarshal(respBytes, &chatResp); err != nil {
+		return "", fmt.Errorf("decoding LLM response: %w", err)
+	}
+
+	if chatResp.Error != nil {
+		return "", fmt.Errorf("LLM API error: %s", chatResp.Error.Message)
+	}
+
+	if len(chatResp.Choices) == 0 {
+		return "", fmt.Errorf("LLM returned no choices")
+	}
+
+	return strings.TrimSpace(chatResp.Choices[0].Message.Content), nil
+}
+
 // ── Prompt construction ───────────────────────────────────────────────────────
 
 const systemPrompt = `You are a friendly, clear teacher explaining code to someone who wants simple, plain-English understanding.

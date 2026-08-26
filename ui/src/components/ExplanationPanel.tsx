@@ -21,10 +21,22 @@ import {
   LogIn,
   LogOut,
   HelpCircle,
+  Send,
+  User,
+  Bot,
 } from 'lucide-react';
 
 interface ExplainResponse {
   explanation: string;
+}
+
+interface ChatResponse {
+  answer: string;
+}
+
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
 }
 
 interface Section {
@@ -85,13 +97,11 @@ function derivePlainEnglishSpec(node: ReturnType<typeof useStore.getState>['grap
   const name = node.name;
   const kind = node.kind;
 
-  // Extract params and return from signature: func (r Recv) Name(a string, b int) (Result, error)
   let paramsStr = '';
   let returnsStr = '';
 
   const paramMatch = sig.match(/\(([^()]*)\)\s*(?:\(([^()]*)\)|([^{\n]+))?$/);
   if (paramMatch) {
-    // If it has a receiver, signature has 2 sets of parens before return
     const allParens = [...sig.matchAll(/\(([^()]*)\)/g)];
     if (allParens.length >= 2) {
       paramsStr = allParens[1][1];
@@ -108,7 +118,6 @@ function derivePlainEnglishSpec(node: ReturnType<typeof useStore.getState>['grap
     }
   }
 
-  // Parse individual input parameters
   const inputs: { name: string; type: string }[] = [];
   if (paramsStr.trim()) {
     paramsStr.split(',').forEach((p) => {
@@ -121,7 +130,6 @@ function derivePlainEnglishSpec(node: ReturnType<typeof useStore.getState>['grap
     });
   }
 
-  // Parse return types
   const outputs: string[] = [];
   if (returnsStr.trim()) {
     returnsStr.replace(/[()]/g, '').split(',').forEach((r) => {
@@ -130,7 +138,6 @@ function derivePlainEnglishSpec(node: ReturnType<typeof useStore.getState>['grap
     });
   }
 
-  // Generate plain English description
   let whatItDoes = doc;
   if (!whatItDoes) {
     if (kind === 'function') {
@@ -169,6 +176,13 @@ export const ExplanationPanel: React.FC = () => {
   const [showTechnicalSpec, setShowTechnicalSpec] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  // Follow-up Q&A state per node
+  const [chatThreads, setChatThreads] = useState<Record<string, ChatMessage[]>>({});
+  const [showChatInput, setShowChatInput] = useState(false);
+  const [chatInput, setChatInput] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
+
   const selectedNode = React.useMemo(() => {
     if (!selectedNodeId) return null;
     return graph.nodes.find((n) => n.id === selectedNodeId) || null;
@@ -201,6 +215,7 @@ export const ExplanationPanel: React.FC = () => {
   }, [selectedNodeId, graph.nodes, graph.edges]);
 
   const currentExplanation = selectedNodeId ? explanationCache[selectedNodeId] || null : null;
+  const currentChatMessages = selectedNodeId ? chatThreads[selectedNodeId] || [] : [];
 
   useEffect(() => {
     return () => {
@@ -254,6 +269,59 @@ export const ExplanationPanel: React.FC = () => {
       })
       .finally(() => {
         setLoading(false);
+      });
+  };
+
+  const handleSendChat = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedNodeId || !chatInput.trim() || chatLoading) return;
+
+    const userQuestion = chatInput.trim();
+    const history = chatThreads[selectedNodeId] || [];
+    const updatedHistory: ChatMessage[] = [
+      ...history,
+      { role: 'user', content: userQuestion },
+    ];
+
+    setChatThreads((prev) => ({
+      ...prev,
+      [selectedNodeId]: updatedHistory,
+    }));
+    setChatInput('');
+    setChatLoading(true);
+    setChatError(null);
+
+    fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nodeId: selectedNodeId,
+        question: userQuestion,
+        history,
+      }),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          return res.json().then((e: { error?: string }) => {
+            throw new Error(e.error || `HTTP ${res.status}`);
+          });
+        }
+        return res.json() as Promise<ChatResponse>;
+      })
+      .then((data) => {
+        setChatThreads((prev) => ({
+          ...prev,
+          [selectedNodeId]: [
+            ...updatedHistory,
+            { role: 'assistant', content: data.answer },
+          ],
+        }));
+      })
+      .catch((err: Error) => {
+        setChatError(err.message || 'Failed to get answer from AI.');
+      })
+      .finally(() => {
+        setChatLoading(false);
       });
   };
 
@@ -722,7 +790,7 @@ export const ExplanationPanel: React.FC = () => {
             }}
           >
             <Loader2 size={22} className="animate-spin" color="#2563eb" />
-            <span style={{ fontSize: '0.8rem', fontWeight: 500 }}>Nemotron 120B is synthesizing intuition & concepts…</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: 500 }}>Nemotron 120B is synthesizing plain-English breakdown…</span>
           </div>
         )}
 
@@ -770,7 +838,7 @@ export const ExplanationPanel: React.FC = () => {
           </div>
         )}
 
-        {/* Rendered 4-part AI Progression */}
+        {/* ── Rendered 4-part AI Progression ───────────────────────────────── */}
         {!loading && sections.length > 0 && sections.map((sec) => (
           <div
             key={sec.number}
@@ -821,6 +889,168 @@ export const ExplanationPanel: React.FC = () => {
             </div>
           </div>
         ))}
+
+        {/* ── Follow-Up Sparkle Question Box ──────────────────────────────── */}
+        {currentExplanation && !loading && (
+          <div
+            style={{
+              marginTop: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 8,
+            }}
+          >
+            {/* Conversation Messages */}
+            {currentChatMessages.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {currentChatMessages.map((msg, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      fontSize: '0.78rem',
+                      lineHeight: 1.5,
+                      backgroundColor: msg.role === 'user' ? '#f1f5f9' : '#ffffff',
+                      border: msg.role === 'user' ? '1px solid #e2e8f0' : '1px solid #bfdbfe',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 5,
+                        fontWeight: 700,
+                        fontSize: '0.68rem',
+                        textTransform: 'uppercase',
+                        color: msg.role === 'user' ? '#475569' : '#2563eb',
+                        marginBottom: 4,
+                      }}
+                    >
+                      {msg.role === 'user' ? <User size={12} /> : <Bot size={12} />}
+                      <span>{msg.role === 'user' ? 'You' : 'CodeLens AI'}</span>
+                    </div>
+                    <div className="markdown-content">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {msg.content}
+                      </ReactMarkdown>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {chatLoading && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '8px 12px',
+                  backgroundColor: '#eff6ff',
+                  borderRadius: '6px',
+                  fontSize: '0.75rem',
+                  color: '#2563eb',
+                }}
+              >
+                <Loader2 size={14} className="animate-spin" />
+                <span>Thinking about your question…</span>
+              </div>
+            )}
+
+            {chatError && (
+              <div
+                style={{
+                  padding: '8px 12px',
+                  backgroundColor: '#fef2f2',
+                  border: '1px solid #fecaca',
+                  borderRadius: '6px',
+                  fontSize: '0.74rem',
+                  color: '#dc2626',
+                }}
+              >
+                {chatError}
+              </div>
+            )}
+
+            {/* Sparkle Action Button or Thin Textbox */}
+            {!showChatInput && currentChatMessages.length === 0 ? (
+              <button
+                onClick={() => setShowChatInput(true)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '8px 12px',
+                  backgroundColor: '#fafafa',
+                  border: '1px dashed #cbd5e1',
+                  borderRadius: '6px',
+                  color: '#475569',
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+                className="hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50"
+              >
+                <Sparkles size={13} color="#2563eb" />
+                <span>Ask a follow-up question about {selectedNode.name}…</span>
+              </button>
+            ) : (
+              <form
+                onSubmit={handleSendChat}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #3b82f6',
+                  borderRadius: '6px',
+                  padding: '2px 4px 2px 8px',
+                  boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.1)',
+                  gap: 6,
+                }}
+              >
+                <Sparkles size={13} color="#2563eb" style={{ flexShrink: 0 }} />
+                <input
+                  type="text"
+                  placeholder={`Ask anything about ${selectedNode.name}…`}
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  disabled={chatLoading}
+                  autoFocus
+                  style={{
+                    flex: 1,
+                    border: 'none',
+                    outline: 'none',
+                    fontSize: '0.76rem',
+                    color: '#0f172a',
+                    padding: '6px 2px',
+                    fontFamily: 'var(--font-sans)',
+                  }}
+                />
+                <button
+                  type="submit"
+                  disabled={chatLoading || !chatInput.trim()}
+                  style={{
+                    backgroundColor: chatInput.trim() ? '#2563eb' : '#f1f5f9',
+                    color: chatInput.trim() ? '#ffffff' : '#94a3b8',
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '5px 8px',
+                    cursor: chatInput.trim() ? 'pointer' : 'default',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <Send size={12} />
+                </button>
+              </form>
+            )}
+          </div>
+        )}
 
         {/* ── Collapsible Technical Spec & Source Code ─────────────────────── */}
         <div
