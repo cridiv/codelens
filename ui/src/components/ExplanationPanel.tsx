@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
 import { useStore } from '../store/useStore';
 import {
   Sparkles,
@@ -12,8 +13,6 @@ import {
   FileCode2,
   ArrowRight,
   ArrowLeft,
-  ChevronDown,
-  ChevronUp,
   Lightbulb,
   Boxes,
   Layers,
@@ -173,7 +172,6 @@ export const ExplanationPanel: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [showTechnicalSpec, setShowTechnicalSpec] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   // Follow-up Q&A state per node
@@ -391,6 +389,8 @@ export const ExplanationPanel: React.FC = () => {
       style={{
         width: '100%',
         height: '100%',
+        minHeight: 0,
+        minWidth: 0,
         backgroundColor: '#ffffff',
         display: 'flex',
         flexDirection: 'column',
@@ -509,13 +509,18 @@ export const ExplanationPanel: React.FC = () => {
 
       {/* ── Scrollable Body ─────────────────────────────────────────────────── */}
       <div
+        className="explanation-scrollbar custom-scrollbar"
         style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '14px 16px',
+          flex: '1 1 0%',
+          minHeight: 0,
+          overflowY: 'scroll',
+          scrollbarWidth: 'thin',
+          overflowX: 'hidden',
+          padding: '14px 16px 48px 16px',
           display: 'flex',
           flexDirection: 'column',
           gap: 12,
+          overscrollBehavior: 'contain',
         }}
       >
         {/* 1. What It Does (Plain English) */}
@@ -883,7 +888,7 @@ export const ExplanationPanel: React.FC = () => {
               <span>{sec.title}</span>
             </div>
             <div className="markdown-content">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
                 {sec.content}
               </ReactMarkdown>
             </div>
@@ -932,7 +937,7 @@ export const ExplanationPanel: React.FC = () => {
                       <span>{msg.role === 'user' ? 'You' : 'CodeLens AI'}</span>
                     </div>
                     <div className="markdown-content">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
                         {msg.content}
                       </ReactMarkdown>
                     </div>
@@ -1052,70 +1057,6 @@ export const ExplanationPanel: React.FC = () => {
           </div>
         )}
 
-        {/* ── Collapsible Technical Spec & Source Code ─────────────────────── */}
-        <div
-          style={{
-            marginTop: 4,
-            border: '1px solid #e2e8f0',
-            borderRadius: '8px',
-            overflow: 'hidden',
-            backgroundColor: '#ffffff',
-          }}
-        >
-          <button
-            onClick={() => setShowTechnicalSpec((prev) => !prev)}
-            style={{
-              width: '100%',
-              padding: '10px 14px',
-              backgroundColor: '#f8fafc',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              fontSize: '0.74rem',
-              fontWeight: 600,
-              color: '#475569',
-            }}
-          >
-            <span>Technical Spec & Code</span>
-            {showTechnicalSpec ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          </button>
-
-          {showTechnicalSpec && (
-            <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8, borderTop: '1px solid #e2e8f0' }}>
-              {selectedNode.metadata?.signature && (
-                <div>
-                  <div style={{ fontSize: '0.68rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: 4 }}>
-                    Type Signature
-                  </div>
-                  <code
-                    style={{
-                      fontSize: '0.72rem',
-                      fontFamily: 'var(--font-mono), monospace',
-                      backgroundColor: '#f8fafc',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '5px',
-                      padding: '6px 10px',
-                      display: 'block',
-                      color: '#0f172a',
-                      overflowX: 'auto',
-                      whiteSpace: 'pre',
-                    }}
-                  >
-                    {selectedNode.metadata.signature}
-                  </code>
-                </div>
-              )}
-
-              {selectedNode.metadata?.receiver && (
-                <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
-                  <strong>Receiver:</strong> <code>{selectedNode.metadata.receiver}</code>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
       </div>
     </aside>
   );
