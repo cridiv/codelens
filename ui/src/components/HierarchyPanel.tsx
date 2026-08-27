@@ -231,7 +231,9 @@ export const HierarchyPanel: React.FC = () => {
       <div
         style={{
           flex: 1,
-          overflowY: 'auto',
+          minHeight: 0,
+          overflowY: 'scroll',
+          overflowX: 'hidden',
           padding: '10px 8px',
           display: 'flex',
           flexDirection: 'column',

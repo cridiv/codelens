@@ -45,22 +45,25 @@ function VisualizerApp() {
         className="main-layout"
         style={{
           display: 'grid',
-          gridTemplateColumns: `${isLeftPanelOpen ? '300px' : '0px'} 1fr ${isRightPanelOpen ? '360px' : '0px'}`,
+          gridTemplateColumns: `${isLeftPanelOpen ? 'minmax(0, 300px)' : '0px'} minmax(0, 1fr) ${isRightPanelOpen ? 'minmax(0, 380px)' : '0px'}`,
+          gridTemplateRows: 'minmax(0, 100%)',
+          height: 'calc(100vh - 52px)',
+          overflow: 'hidden',
           transition: 'grid-template-columns 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
       >
         {/* Left: Codebase / Schema Hierarchy Panel */}
-        <div style={{ overflow: 'hidden', height: '100%' }}>
+        <div style={{ overflow: 'hidden', height: '100%', minHeight: 0, minWidth: 0 }}>
           {isLeftPanelOpen && <HierarchyPanel />}
         </div>
 
         {/* Center: Interactive React Flow Schema Canvas */}
-        <section className="canvas-area">
+        <section className="canvas-area" style={{ height: '100%', minHeight: 0, minWidth: 0 }}>
           <Canvas />
         </section>
 
         {/* Right: AI & Schema Inspector Sidebar */}
-        <div style={{ overflow: 'hidden', height: '100%' }}>
+        <div style={{ overflow: 'hidden', height: '100%', minHeight: 0, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
           {isRightPanelOpen && <ExplanationPanel />}
         </div>
       </main>

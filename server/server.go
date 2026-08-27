@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -168,17 +169,15 @@ func corsMiddleware(next http.Handler) http.Handler {
 // index.html so that client-side routing can take over.
 func spaHandler(root fs.FS, fileServer http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Check whether the file actually exists in the embedded FS.
-		path := r.URL.Path
-		if path == "/" {
-			path = "index.html"
-		} else {
-			// Strip leading slash for fs.Stat
-			path = path[1:]
+		cleanPath := strings.TrimPrefix(r.URL.Path, "/")
+		if cleanPath == "" || cleanPath == "index.html" {
+			w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+			cleanPath = "index.html"
 		}
 
-		if _, err := fs.Stat(root, path); err != nil {
+		if _, err := fs.Stat(root, cleanPath); err != nil {
 			// File not found — serve index.html for SPA routing.
+			w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 			r2 := *r
 			r2.URL.Path = "/"
 			fileServer.ServeHTTP(w, &r2)

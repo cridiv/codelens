@@ -60,6 +60,12 @@ func (s *Server) handleNode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Detect /api/node/:id/source
+	sourceRequest := strings.HasSuffix(remainder, "/source")
+	if sourceRequest {
+		remainder = strings.TrimSuffix(remainder, "/source")
+	}
+
 	// Detect /api/node/:id/neighbors
 	neighborsRequest := strings.HasSuffix(remainder, "/neighbors")
 	nodeID := remainder
@@ -75,6 +81,19 @@ func (s *Server) handleNode(w http.ResponseWriter, r *http.Request) {
 	node, ok := s.graph.NodeByID(nodeID)
 	if !ok {
 		writeError(w, http.StatusNotFound, fmt.Sprintf("node %q not found", nodeID))
+		return
+	}
+
+	if sourceRequest {
+		code := s.readNodeSourceCode(node)
+		writeJSON(w, http.StatusOK, map[string]string{
+			"id":         node.ID,
+			"name":       node.Name,
+			"path":       node.Path,
+			"code":       code,
+			"start_line": node.Metadata["start_line"],
+			"end_line":   node.Metadata["end_line"],
+		})
 		return
 	}
 
